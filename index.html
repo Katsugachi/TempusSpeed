@@ -127,6 +127,8 @@
     .input-plus { background: var(--bg-secondary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
     .input-plus:hover { background: var(--bg-hover); color: var(--text-normal); }
     .chat-input-box input { flex: 1; background: transparent; border: none; color: var(--text-normal); font-size: 15.5px; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; min-width: 0; }
+    .send-btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .send-btn:hover { background: var(--accent-hover); }
     
     .modal-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     .modal { background: var(--bg-primary); width: 440px; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
@@ -253,6 +255,7 @@
             </div>
             <input type="file" id="file-upload" style="display:none" onchange="handleFileUpload(event)">
             <input type="text" id="chat-input" placeholder="Message" autocomplete="off">
+            <button class="send-btn" type="button" onclick="handleInputSubmit()">Send</button>
           </div>
         </div>
       </div>
