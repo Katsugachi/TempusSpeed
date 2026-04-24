@@ -64,6 +64,9 @@
     .channels-list { flex: 1; padding: 8px; overflow-y: auto; }
     .channel-item { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 2px; position: relative;}
     .channel-item:hover, .channel-item.active { background: var(--bg-hover); color: var(--text-normal); }
+    .dm-remove-btn { opacity: 0; margin-left: 8px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .channel-item:hover .dm-remove-btn, .channel-item.active .dm-remove-btn { opacity: 1; }
+    .dm-remove-btn:hover { background: var(--bg-tertiary); color: var(--danger); }
     .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; position: relative; flex-shrink: 0; overflow: hidden; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .status-dot { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid var(--bg-secondary); border-radius: 50%; z-index: 2; }
@@ -174,8 +177,8 @@
   <!-- MODALS -->
   <div class="modal-overlay" id="add-friend-modal">
     <div class="modal">
-      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their 5-digit ID.</p></div>
-      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="e.g. 12345" maxlength="5" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
+      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their 8-digit ID.</p></div>
+      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="e.g. 1234-5678" maxlength="9" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('add-friend-modal')">Cancel</button>
         <button class="btn" style="width: auto;" onclick="addFriend()">Add Friend</button>
@@ -217,7 +220,7 @@
       <div class="channels-list" id="dm-list"></div>
       <div class="user-controls">
         <div class="avatar" id="my-avatar">C</div>
-        <div class="user-info" onclick="copyMyId()" title="Click to copy ID"><div class="user-name" id="my-name-display">Name</div><div class="user-id" id="my-id-display">#00000</div></div>
+        <div class="user-info" onclick="copyMyId()" title="Click to copy ID"><div class="user-name" id="my-name-display">Name</div><div class="user-id" id="my-id-display">#0000-0000</div></div>
         <button class="action-btn" onclick="openModal('settings-modal')" title="Settings">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
@@ -257,7 +260,7 @@
       <div class="empty-state" id="empty-state">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
         <h3>No connection active</h3>
-        <p>Select a friend or add someone using their 5-digit ID.</p>
+        <p>Select a friend or add someone using their 8-digit ID.</p>
       </div>
     </div>
   </div>
@@ -282,6 +285,20 @@
       document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.getElementById(`theme-${theme}`);
       if(activeBtn) activeBtn.classList.add('active');
+    }
+
+    function generateFormattedId() {
+      const raw = Math.floor(10000000 + Math.random() * 90000000).toString();
+      return `${raw.slice(0, 4)}-${raw.slice(4)}`;
+    }
+
+    function normalizeId(value) {
+      if (!value) return '';
+      const raw = value.toString().trim();
+      if (/^\d{4}-\d{4}$/.test(raw)) return raw;
+      const digits = raw.replace(/\D/g, '');
+      if (digits.length !== 8) return '';
+      return `${digits.slice(0, 4)}-${digits.slice(4)}`;
     }
 
     // --- TITLE NOTIFICATIONS ---
@@ -324,7 +341,7 @@
       const savedAvatar = localStorage.getItem('connect_avatar') || sessionStorage.getItem('connect_avatar');
       
       if(savedId && savedName) {
-        myId = savedId.toString(); 
+        myId = normalizeId(savedId) || generateFormattedId();
         myName = savedName;
         if(savedAvatar) myAvatar = savedAvatar;
         
@@ -368,8 +385,8 @@
 
       const remember = document.getElementById('remember-me').checked;
       
-      let existingId = localStorage.getItem('connect_id') || sessionStorage.getItem('connect_id');
-      myId = existingId ? existingId.toString() : Math.floor(10000 + Math.random() * 90000).toString();
+      const existingId = localStorage.getItem('connect_id') || sessionStorage.getItem('connect_id');
+      myId = normalizeId(existingId) || generateFormattedId();
       
       if (remember) {
         localStorage.setItem('connect_id', myId);
@@ -432,9 +449,9 @@
 
     // --- P2P LOGIC ---
     function addFriend() {
-      let id = document.getElementById('friend-id-input').value.trim().toString();
-      if(!/^\d{5}$/.test(id)) {
-          alert("Please enter a valid 5-digit ID.");
+      let id = normalizeId(document.getElementById('friend-id-input').value);
+      if(!id) {
+          alert("Please enter a valid 8-digit ID in the format 1234-5678.");
           return;
       }
       if(id === myId) return;
@@ -750,10 +767,43 @@
             ${f.name}
           </div>
           ${unreadBadge}
+          <button class="dm-remove-btn" title="Remove DM" onclick="removeFriend('${id}', event)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         `;
         div.onclick = () => openChat(id);
         list.appendChild(div);
       });
+    }
+
+    function removeFriend(id, e) {
+      if (e) e.stopPropagation();
+      const friendName = friends[id]?.name || `User ${id}`;
+      if (!confirm(`Remove ${friendName} from Direct Messages?`)) return;
+
+      if (connections[id]) {
+        try { connections[id].close(); } catch (_) {}
+        delete connections[id];
+      }
+
+      delete friends[id];
+      delete unreadCounts[id];
+      delete offlineQueue[id];
+      saveFriends();
+      saveUnread();
+      localStorage.setItem('connect_queue', JSON.stringify(offlineQueue));
+
+      const tx = db.transaction('chats', 'readwrite');
+      tx.objectStore('chats').delete(id);
+
+      if (activeChatId === id) {
+        activeChatId = null;
+        editingMsgId = null;
+        document.getElementById('chat-wrapper').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'flex';
+      }
+
+      renderDMList();
     }
 
     function renderChatHeader() {
