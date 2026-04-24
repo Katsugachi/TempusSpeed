@@ -157,7 +157,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h2>Tempus Speed</h2>
-      <p>A Pure WebRTC Communications App</p>
+      <p>High Speed WebRTC Communications App</p>
       
       <div class="avatar-upload-wrapper" onclick="document.getElementById('avatar-upload').click()" title="Upload Avatar">
         <div id="avatar-preview-container"><span>+</span></div>
@@ -433,6 +433,19 @@
       
       peer.on('error', (err) => {
         console.warn(err);
+        // Preserve account identity: never rotate IDs automatically on collision.
+        if (err && (err.type === 'unavailable-id' || /is taken/i.test(err.message || ''))) {
+          try { if (peer && !peer.destroyed) peer.destroy(); } catch (_) {}
+          peer = null;
+          alert(`Your ID (${myId}) is already active in another session. Close other tabs/devices using this account, then press Start again.`);
+          const btn = document.getElementById('login-btn');
+          if (btn) {
+            btn.innerText = "Start";
+            btn.disabled = false;
+          }
+          return;
+        }
+
         alert("Connection Error: " + err.message);
         const btn = document.getElementById('login-btn');
         if (btn) {
