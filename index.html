@@ -179,8 +179,8 @@
   <!-- MODALS -->
   <div class="modal-overlay" id="add-friend-modal">
     <div class="modal">
-      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their full ID (works even if they are currently offline).</p></div>
-      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="Paste full ID" maxlength="64" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
+      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their 8 digit ID</p></div>
+      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="1234-5678" maxlength="64" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('add-friend-modal')">Cancel</button>
         <button class="btn" style="width: auto;" onclick="addFriend()">Add Friend</button>
