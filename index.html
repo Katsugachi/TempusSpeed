@@ -157,7 +157,7 @@
   <div id="login-screen">
     <div class="login-box">
       <h2>Tempus Speed</h2>
-      <p>A Pure WebRTC Communications App</p>
+      <p>High Speed WebRTC Communications App</p>
       
       <div class="avatar-upload-wrapper" onclick="document.getElementById('avatar-upload').click()" title="Upload Avatar">
         <div id="avatar-preview-container"><span>+</span></div>
@@ -179,8 +179,8 @@
   <!-- MODALS -->
   <div class="modal-overlay" id="add-friend-modal">
     <div class="modal">
-      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their 8-digit ID.</p></div>
-      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="e.g. 1234-5678" maxlength="9" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
+      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their full ID (works even if they are currently offline).</p></div>
+      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="Paste full ID" maxlength="64" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeModal('add-friend-modal')">Cancel</button>
         <button class="btn" style="width: auto;" onclick="addFriend()">Add Friend</button>
@@ -298,11 +298,25 @@
 
     function normalizeId(value) {
       if (!value) return '';
-      const raw = value.toString().trim();
+      const raw = value.toString().trim().replace(/^#/, '');
+      if (/^\d{5}$/.test(raw)) return raw;
       if (/^\d{4}-\d{4}$/.test(raw)) return raw;
       const digits = raw.replace(/\D/g, '');
+      if (digits.length === 5) return digits;
       if (digits.length !== 8) return '';
       return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    }
+
+    function normalizeFriendId(value) {
+      if (!value) return '';
+      const raw = value.toString().trim().replace(/^#/, '');
+      if (!raw) return '';
+      if (/^\d{5}$/.test(raw)) return raw;
+      if (/^\d{4}-\d{4}$/.test(raw)) return raw;
+      if (/^\d{8}$/.test(raw)) return `${raw.slice(0, 4)}-${raw.slice(4)}`;
+      // Accept general PeerJS-style IDs so adding offline does not reject newer/custom formats.
+      if (/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(raw)) return raw;
+      return '';
     }
 
     // --- TITLE NOTIFICATIONS ---
@@ -482,9 +496,9 @@
 
     // --- P2P LOGIC ---
     function addFriend() {
-      let id = normalizeId(document.getElementById('friend-id-input').value);
+      let id = normalizeFriendId(document.getElementById('friend-id-input').value);
       if(!id) {
-          alert("Please enter a valid 8-digit ID in the format 1234-5678.");
+          alert("Please enter a valid ID.");
           return;
       }
       if(id === myId) return;
