@@ -10,965 +10,2357 @@
   <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
   <style>
     :root[data-theme="dark"] {
-      --bg-primary: #313338; --bg-secondary: #2b2d31; --bg-tertiary: #1e1f22;
-      --bg-hover: #3f4147; --bg-message-hover: #2e3035; --bg-input: #383a40;
-      --text-normal: #dbdee1; --text-muted: #949ba4; --text-header: #f2f3f5;
-      --accent: #5865F2; --accent-hover: #4752c4; --danger: #da373c;
-      --success: #23a559; --divider: #1f2023; --code-bg: #2b2d31;
+      --bg-primary:#313338;--bg-secondary:#2b2d31;--bg-tertiary:#1e1f22;
+      --bg-hover:#3f4147;--bg-msg-hover:#2e3035;--bg-input:#383a40;
+      --text-normal:#dbdee1;--text-muted:#949ba4;--text-header:#f2f3f5;
+      --accent:#5865F2;--accent-hover:#4752c4;--danger:#da373c;
+      --success:#23a559;--divider:#1f2023;--transfer-bg:#2b2d31;
     }
     :root[data-theme="light"] {
-      --bg-primary: #ffffff; --bg-secondary: #f2f3f5; --bg-tertiary: #e3e5e8;
-      --bg-hover: #d4d7dc; --bg-message-hover: #f8f9f9; --bg-input: #ebedef;
-      --text-normal: #313338; --text-muted: #5c5e66; --text-header: #060607;
-      --accent: #5865F2; --accent-hover: #4752c4; --danger: #da373c;
-      --success: #23a559; --divider: #e3e5e8; --code-bg: #f2f3f5;
+      --bg-primary:#ffffff;--bg-secondary:#f2f3f5;--bg-tertiary:#e3e5e8;
+      --bg-hover:#d4d7dc;--bg-msg-hover:#f8f9f9;--bg-input:#ebedef;
+      --text-normal:#313338;--text-muted:#5c5e66;--text-header:#060607;
+      --accent:#5865F2;--accent-hover:#4752c4;--danger:#da373c;
+      --success:#23a559;--divider:#e3e5e8;--transfer-bg:#f2f3f5;
     }
     :root[data-theme="amoled"] {
-      --bg-primary: #000000; --bg-secondary: #0a0a0a; --bg-tertiary: #050505;
-      --bg-hover: #1a1a1a; --bg-message-hover: #080808; --bg-input: #111111;
-      --text-normal: #dbdee1; --text-muted: #80848e; --text-header: #ffffff;
-      --accent: #5865F2; --accent-hover: #4752c4; --danger: #da373c;
-      --success: #23a559; --divider: #111111; --code-bg: #111111;
+      --bg-primary:#000000;--bg-secondary:#0a0a0a;--bg-tertiary:#050505;
+      --bg-hover:#1a1a1a;--bg-msg-hover:#080808;--bg-input:#111111;
+      --text-normal:#dbdee1;--text-muted:#80848e;--text-header:#ffffff;
+      --accent:#5865F2;--accent-hover:#4752c4;--danger:#da373c;
+      --success:#23a559;--divider:#111111;--transfer-bg:#111111;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: var(--text-normal); height: 100vh; overflow: hidden; display: flex; -webkit-font-smoothing: antialiased; }
-    
-    #login-screen { position: absolute; inset: 0; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; z-index: 100; }
-    .login-box { background: var(--bg-secondary); padding: 32px; border-radius: 8px; width: 480px; box-shadow: 0 8px 16px rgba(0,0,0,0.24); text-align: center; }
-    .login-box h2 { color: var(--text-header); margin-bottom: 8px; font-size: 24px; font-weight: 700; }
-    .login-box p { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
-    
-    .avatar-upload-wrapper { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-tertiary); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px dashed var(--divider); transition: border-color 0.2s; position: relative; overflow: hidden; }
-    .avatar-upload-wrapper:hover { border-color: var(--accent); }
-    .avatar-upload-wrapper span { font-size: 24px; color: var(--text-muted); }
-    .avatar-upload-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);color:var(--text-normal);height:100vh;overflow:hidden;display:flex;-webkit-font-smoothing:antialiased}
 
-    .input-wrapper { text-align: left; margin-bottom: 20px; }
-    .input-wrapper label { display: block; color: var(--text-muted); font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
-    .login-input { width: 100%; padding: 10px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: var(--text-normal); font-size: 16px; outline: none; }
-    .login-input:focus { box-shadow: 0 0 0 2px var(--accent); }
-    .btn { background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
-    .btn:hover:not(:disabled) { background: var(--accent-hover); }
-    .btn.danger { background: var(--danger); }
-    .btn.danger:hover { background: #b52a2e; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    #app { display: none; width: 100%; height: 100%; flex-direction: row; }
-    #servers-bar { width: 72px; background: var(--bg-tertiary); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; flex-shrink: 0; }
-    .server-icon { width: 48px; height: 48px; background: var(--bg-primary); border-radius: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: var(--text-normal); font-weight: 700; position: relative; }
-    .server-icon.active { border-radius: 16px; background: var(--accent); color: #fff; }
-    .server-separator { width: 32px; height: 2px; background: var(--divider); border-radius: 1px; margin: 4px 0; }
-    
-    #channels-bar { width: 240px; background: var(--bg-secondary); display: flex; flex-direction: column; flex-shrink: 0; }
-    .channels-header { height: 48px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; padding: 0 16px; font-weight: 700; color: var(--text-header); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .channels-list { flex: 1; padding: 8px; overflow-y: auto; }
-    .channel-item { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 2px; position: relative;}
-    .channel-item:hover, .channel-item.active { background: var(--bg-hover); color: var(--text-normal); }
-    .dm-remove-btn { opacity: 0; margin-left: 8px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .channel-item:hover .dm-remove-btn, .channel-item.active .dm-remove-btn { opacity: 1; }
-    .dm-remove-btn:hover { background: var(--bg-tertiary); color: var(--danger); }
-    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; position: relative; flex-shrink: 0; overflow: hidden; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .status-dot { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid var(--bg-secondary); border-radius: 50%; z-index: 2; }
-    .status-dot.online { background: var(--success); }
-    .status-dot.offline { background: var(--text-muted); }
-    
-    .user-controls { height: 52px; background: var(--bg-tertiary); display: flex; align-items: center; padding: 0 8px; gap: 8px; }
-    .user-info { flex: 1; overflow: hidden; cursor: pointer; padding: 4px; border-radius: 4px; }
-    .user-info:hover { background: var(--bg-hover); }
-    .user-name { font-size: 14px; font-weight: 700; color: var(--text-header); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .user-id { font-size: 12px; color: var(--text-muted); }
-    .action-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 4px; display: flex; }
-    .action-btn:hover { background: var(--bg-hover); color: var(--text-normal); }
+    /* LOGIN */
+    #login-screen{position:absolute;inset:0;background:var(--bg-primary);display:flex;align-items:center;justify-content:center;z-index:100}
+    .login-box{background:var(--bg-secondary);padding:32px;border-radius:8px;width:480px;box-shadow:0 8px 16px rgba(0,0,0,.24);text-align:center}
+    .login-box h2{color:var(--text-header);margin-bottom:8px;font-size:24px;font-weight:700}
+    .login-box p{color:var(--text-muted);font-size:15px;margin-bottom:24px}
+    .avatar-upload-wrapper{width:80px;height:80px;border-radius:50%;background:var(--bg-tertiary);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px dashed var(--divider);transition:border-color .2s;position:relative;overflow:hidden}
+    .avatar-upload-wrapper:hover{border-color:var(--accent)}
+    .avatar-upload-wrapper span{font-size:24px;color:var(--text-muted)}
+    .avatar-upload-wrapper img{width:100%;height:100%;object-fit:cover}
+    .input-wrapper{text-align:left;margin-bottom:20px}
+    .input-wrapper label{display:block;color:var(--text-muted);font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:8px}
+    .login-input{width:100%;padding:10px;background:var(--bg-tertiary);border:none;border-radius:4px;color:var(--text-normal);font-size:16px;outline:none;font-family:'Plus Jakarta Sans',sans-serif}
+    .login-input:focus{box-shadow:0 0 0 2px var(--accent)}
+    .btn{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:.2s;font-family:'Plus Jakarta Sans',sans-serif}
+    .btn:hover:not(:disabled){background:var(--accent-hover)}
+    .btn.danger{background:var(--danger)}
+    .btn.danger:hover{background:#b52a2e}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-sm{width:auto;padding:6px 14px;font-size:13px}
 
-    #main-chat { flex: 1; display: flex; flex-direction: column; background: var(--bg-primary); position: relative; }
-    .chat-header { height: 48px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: 600; color: var(--text-header); gap: 8px;}
-    .chat-header-title { display: flex; align-items: center; gap: 8px; }
-    
-    .chat-search-box { background: var(--bg-tertiary); border-radius: 4px; display: flex; align-items: center; padding: 4px 8px; width: 200px; transition: width 0.2s; }
-    .chat-search-box:focus-within { width: 240px; box-shadow: 0 0 0 1px var(--accent); }
-    .chat-search-box input { background: transparent; border: none; color: var(--text-normal); outline: none; font-size: 13px; width: 100%; font-family: 'Plus Jakarta Sans', sans-serif;}
-    .chat-search-box input::placeholder { color: var(--text-muted); }
+    /* APP LAYOUT */
+    #app{display:none;width:100%;height:100%;flex-direction:row}
+    #servers-bar{width:72px;background:var(--bg-tertiary);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:8px;flex-shrink:0}
+    .server-icon{width:48px;height:48px;background:var(--bg-primary);border-radius:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;color:var(--text-normal);font-weight:700;position:relative;font-size:13px;overflow:hidden}
+    .server-icon:hover{border-radius:16px;background:var(--bg-hover)}
+    .server-icon.active{border-radius:16px;background:var(--accent);color:#fff}
+    .server-icon img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+    .server-separator{width:32px;height:2px;background:var(--divider);border-radius:1px;margin:4px 0}
 
-    .chat-messages { flex: 1; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; }
-    
-    .message { display: flex; gap: 16px; padding: 4px 16px; position: relative; margin-top: 14px; }
-    .message:hover { background: var(--bg-message-hover); }
-    .message.compact { margin-top: 0; padding-top: 2px; padding-bottom: 2px; }
-    .message.compact .msg-avatar, .message.compact .msg-header { display: none; }
-    .message.compact .msg-content { margin-left: 56px; }
-    .msg-timestamp-compact { display: none; position: absolute; left: 16px; width: 40px; text-align: center; font-size: 11px; color: var(--text-muted); line-height: 22px; opacity: 0; }
-    .message:hover .msg-timestamp-compact { opacity: 1; }
-    .message.compact:hover .msg-timestamp-compact { display: block; }
-    
-    .msg-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; flex-shrink: 0; overflow: hidden; }
-    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    
-    .msg-content { flex: 1; min-width: 0; display: flex; flex-direction: column;}
-    .msg-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
-    .msg-author { font-weight: 600; color: var(--text-header); font-size: 16px; }
-    .msg-time { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-    .msg-text { font-size: 15.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; color: var(--text-normal); }
-    .msg-text img { max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block; cursor: pointer; border: 1px solid var(--divider); }
-    .msg-text a { color: var(--accent); text-decoration: none; }
-    .msg-text a:hover { text-decoration: underline; }
-    .edited-badge { font-size: 11px; color: var(--text-muted); margin-left: 4px; user-select: none; }
-    
-    .msg-actions { position: absolute; right: 16px; top: -14px; background: var(--bg-primary); border: 1px solid var(--divider); border-radius: 4px; display: none; padding: 2px; box-shadow: 0 4px 4px rgba(0,0,0,0.08); z-index: 10; }
-    .message:hover .msg-actions { display: flex; }
-    .msg-actions button { background: transparent; border: none; color: var(--text-muted); padding: 4px 8px; cursor: pointer; border-radius: 2px; display: flex; align-items: center; justify-content: center; }
-    .msg-actions button:hover { background: var(--bg-hover); color: var(--text-normal); }
-    .msg-actions button.danger:hover { color: var(--danger); }
+    #channels-bar{width:240px;background:var(--bg-secondary);display:flex;flex-direction:column;flex-shrink:0}
+    .channels-header{height:48px;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-weight:700;color:var(--text-header);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .channels-section-label{display:flex;align-items:center;justify-content:space-between;padding:16px 8px 4px;color:var(--text-muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+    .channels-section-label:hover{color:var(--text-normal)}
+    .channels-list{flex:1;padding:4px 8px;overflow-y:auto}
+    .channel-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:4px;cursor:pointer;color:var(--text-muted);margin-bottom:2px;position:relative}
+    .channel-item:hover,.channel-item.active{background:var(--bg-hover);color:var(--text-normal)}
+    .channel-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:14px}
+    .dm-remove-btn{opacity:0;background:transparent;border:none;color:var(--text-muted);cursor:pointer;width:20px;height:20px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    .channel-item:hover .dm-remove-btn,.channel-item.active .dm-remove-btn{opacity:1}
+    .dm-remove-btn:hover{background:var(--bg-tertiary);color:var(--danger)}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff;position:relative;flex-shrink:0;overflow:hidden;font-size:13px}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .status-dot{position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border:2px solid var(--bg-secondary);border-radius:50%;z-index:2}
+    .status-dot.online{background:var(--success)}
+    .status-dot.offline{background:var(--text-muted)}
+    .status-dot.partial{background:#f0a500}
+    .unread-badge{background:var(--danger);color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto;flex-shrink:0}
 
-    .chat-input-wrapper { padding: 0 16px 24px; position: relative; }
-    .attachment-preview { display: none; padding: 10px 16px; background: var(--bg-secondary); border-radius: 8px 8px 0 0; border-bottom: 1px solid var(--divider); margin: 0 16px; position: absolute; bottom: 100%; left: 0; right: 0; align-items: center; gap: 10px;}
-    .attachment-preview img { max-height: 60px; border-radius: 4px; }
-    .chat-input-box { background: var(--bg-input); border-radius: 8px; display: flex; align-items: center; padding: 10px 16px; gap: 12px; z-index: 2; position: relative;}
-    .input-plus { background: var(--bg-secondary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-    .input-plus:hover { background: var(--bg-hover); color: var(--text-normal); }
-    .chat-input-box input { flex: 1; background: transparent; border: none; color: var(--text-normal); font-size: 15.5px; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; min-width: 0; }
-    .send-btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .send-btn:hover { background: var(--accent-hover); }
-    
-    .modal-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-    .modal { background: var(--bg-primary); width: 440px; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-    .modal-header { padding: 24px 16px 16px; text-align: center; }
-    .modal-header h2 { font-size: 24px; font-weight: 700; color: var(--text-header); }
-    .modal-content { padding: 0 16px 24px; }
-    .modal-footer { background: var(--bg-secondary); padding: 16px; display: flex; justify-content: flex-end; gap: 8px; }
-    .btn-secondary { background: transparent; color: var(--text-normal); border: none; padding: 10px 16px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;}
-    .btn-secondary:hover { text-decoration: underline; }
-    
-    .theme-selector { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
-    .theme-btn { padding: 12px 24px; border-radius: 4px; border: 2px solid transparent; background: var(--bg-tertiary); color: var(--text-normal); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;}
-    .theme-btn:hover { background: var(--bg-hover); }
-    .theme-btn.active { border-color: var(--accent); background: var(--bg-secondary); }
+    .user-controls{height:52px;background:var(--bg-tertiary);display:flex;align-items:center;padding:0 8px;gap:8px}
+    .user-info{flex:1;overflow:hidden;cursor:pointer;padding:4px;border-radius:4px}
+    .user-info:hover{background:var(--bg-hover)}
+    .user-name{font-size:14px;font-weight:700;color:var(--text-header);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+    .user-id{font-size:12px;color:var(--text-muted)}
+    .action-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:6px;border-radius:4px;display:flex}
+    .action-btn:hover{background:var(--bg-hover);color:var(--text-normal)}
 
-    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 20px;}
-    .empty-state svg { width: 120px; height: 120px; margin-bottom: 24px; opacity: 0.3; }
+    /* MAIN CHAT */
+    #main-chat{flex:1;display:flex;flex-direction:column;background:var(--bg-primary);position:relative;min-width:0}
+    .chat-header{height:48px;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-weight:600;color:var(--text-header);gap:8px;flex-shrink:0}
+    .chat-header-title{display:flex;align-items:center;gap:8px}
+    .chat-members-pill{background:var(--bg-tertiary);border-radius:12px;padding:3px 8px;font-size:12px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:4px}
+    .chat-members-pill:hover{background:var(--bg-hover);color:var(--text-normal)}
+    .chat-search-box{background:var(--bg-tertiary);border-radius:4px;display:flex;align-items:center;padding:4px 8px;width:200px;transition:width .2s}
+    .chat-search-box:focus-within{width:240px;box-shadow:0 0 0 1px var(--accent)}
+    .chat-search-box input{background:transparent;border:none;color:var(--text-normal);outline:none;font-size:13px;width:100%;font-family:'Plus Jakarta Sans',sans-serif}
+    .chat-search-box input::placeholder{color:var(--text-muted)}
+    .chat-messages{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column}
+    .message{display:flex;gap:16px;padding:4px 16px;position:relative;margin-top:14px}
+    .message:hover{background:var(--bg-msg-hover)}
+    .message.compact{margin-top:0;padding-top:2px;padding-bottom:2px}
+    .message.compact .msg-avatar,.message.compact .msg-header{display:none}
+    .message.compact .msg-content{margin-left:56px}
+    .msg-timestamp-compact{display:none;position:absolute;left:16px;width:40px;text-align:center;font-size:11px;color:var(--text-muted);line-height:22px;opacity:0}
+    .message:hover .msg-timestamp-compact{opacity:1}
+    .message.compact:hover .msg-timestamp-compact{display:block}
+    .msg-avatar{width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;flex-shrink:0;overflow:hidden;font-size:15px}
+    .msg-avatar img{width:100%;height:100%;object-fit:cover}
+    .msg-content{flex:1;min-width:0;display:flex;flex-direction:column}
+    .msg-header{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+    .msg-author{font-weight:600;color:var(--text-header);font-size:16px;cursor:pointer}
+    .msg-author:hover{text-decoration:underline}
+    .msg-time{font-size:12px;color:var(--text-muted);font-weight:500}
+    .msg-text{font-size:15.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;color:var(--text-normal)}
+    .msg-text img{max-width:300px;max-height:300px;border-radius:8px;margin-top:8px;display:block;cursor:pointer;border:1px solid var(--divider)}
+    .msg-text a{color:var(--accent);text-decoration:none}
+    .msg-text a:hover{text-decoration:underline}
+    .edited-badge{font-size:11px;color:var(--text-muted);margin-left:4px;user-select:none}
+    .msg-actions{position:absolute;right:16px;top:-14px;background:var(--bg-primary);border:1px solid var(--divider);border-radius:4px;display:none;padding:2px;box-shadow:0 4px 4px rgba(0,0,0,.08);z-index:10}
+    .message:hover .msg-actions{display:flex}
+    .msg-actions button{background:transparent;border:none;color:var(--text-muted);padding:4px 8px;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center}
+    .msg-actions button:hover{background:var(--bg-hover);color:var(--text-normal)}
+    .msg-actions button.danger:hover{color:var(--danger)}
 
-    /* Queued message indicator */
-    .queued-badge { font-size: 11px; color: var(--text-muted); margin-left: 6px; font-style: italic; }
+    /* SYSTEM MESSAGES */
+    .system-msg{display:flex;align-items:center;gap:8px;padding:4px 16px;color:var(--text-muted);font-size:13px;font-style:italic;margin-top:8px}
+
+    /* TRANSFER CARDS */
+    .transfer-card{background:var(--transfer-bg);border:1px solid var(--divider);border-radius:8px;padding:12px 14px;margin-top:8px;max-width:360px}
+    .transfer-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .transfer-icon{width:36px;height:36px;border-radius:8px;background:var(--bg-hover);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .transfer-name{font-weight:600;font-size:14px;color:var(--text-header);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .transfer-size{font-size:12px;color:var(--text-muted);margin-top:2px}
+    .transfer-progress-bar{width:100%;height:6px;background:var(--bg-hover);border-radius:3px;overflow:hidden;margin-top:8px}
+    .transfer-progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .2s}
+    .transfer-status{font-size:12px;color:var(--text-muted);margin-top:6px;display:flex;justify-content:space-between;align-items:center}
+    .transfer-speed{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)}
+    .transfer-btn{background:var(--accent);color:#fff;border:none;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+    .transfer-btn:hover{background:var(--accent-hover)}
+    .transfer-btn.cancel{background:var(--danger)}
+    .transfer-btn.cancel:hover{background:#b52a2e}
+
+    /* INPUT AREA */
+    .chat-input-wrapper{padding:0 16px 24px;position:relative;flex-shrink:0}
+    .attachment-preview{display:none;padding:10px 16px;background:var(--bg-secondary);border-radius:8px 8px 0 0;border-bottom:1px solid var(--divider);align-items:center;gap:10px}
+    .attachment-preview img{max-height:60px;border-radius:4px}
+    .chat-input-box{background:var(--bg-input);border-radius:8px;display:flex;align-items:center;padding:10px 16px;gap:12px;z-index:2;position:relative}
+    .input-plus{background:var(--bg-secondary);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text-muted)}
+    .input-plus:hover{background:var(--bg-hover);color:var(--text-normal)}
+    .chat-input-box input{flex:1;background:transparent;border:none;color:var(--text-normal);font-size:15.5px;outline:none;font-family:'Plus Jakarta Sans',sans-serif;min-width:0}
+    .send-btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Plus Jakarta Sans',sans-serif}
+    .send-btn:hover{background:var(--accent-hover)}
+
+    /* MODALS */
+    .modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+    .modal{background:var(--bg-primary);width:440px;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    .modal-wide{width:520px}
+    .modal-header{padding:24px 16px 16px;text-align:center}
+    .modal-header h2{font-size:24px;font-weight:700;color:var(--text-header)}
+    .modal-header p{font-size:14px;color:var(--text-muted);margin-top:4px}
+    .modal-content{padding:0 16px 24px}
+    .modal-footer{background:var(--bg-secondary);padding:16px;display:flex;justify-content:flex-end;gap:8px;border-radius:0 0 4px 4px}
+    .btn-secondary{background:transparent;color:var(--text-normal);border:none;padding:10px 16px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+    .btn-secondary:hover{text-decoration:underline}
+    .theme-selector{display:flex;gap:12px;justify-content:center;margin-top:16px}
+    .theme-btn{padding:12px 24px;border-radius:4px;border:2px solid transparent;background:var(--bg-tertiary);color:var(--text-normal);font-weight:600;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+    .theme-btn:hover{background:var(--bg-hover)}
+    .theme-btn.active{border-color:var(--accent);background:var(--bg-secondary)}
+    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);text-align:center;padding:20px}
+    .empty-state svg{width:120px;height:120px;margin-bottom:24px;opacity:.3}
+
+    /* GROUP MEMBER LIST */
+    .member-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:4px}
+    .member-row:hover{background:var(--bg-hover)}
+    .member-badge{font-size:11px;padding:2px 6px;border-radius:8px;font-weight:700;margin-left:auto}
+    .member-badge.host{background:var(--accent);color:#fff}
+    .member-badge.online{background:var(--success);color:#fff}
+    .member-badge.offline{background:var(--bg-hover);color:var(--text-muted)}
+
+    /* OFFLINE QUEUE INFO */
+    .queued-indicator{font-size:11px;color:var(--text-muted);font-style:italic;margin-left:6px}
+
+    /* RECONNECT BAR */
+    #reconnect-bar{display:none;position:fixed;top:0;left:0;right:0;background:var(--danger);color:#fff;text-align:center;font-size:13px;font-weight:600;padding:6px;z-index:999}
+
+    /* TRANSFERS PANEL */
+    #transfers-panel{width:280px;background:var(--bg-secondary);border-left:1px solid var(--divider);display:none;flex-direction:column;flex-shrink:0}
+    #transfers-panel.open{display:flex}
+    .transfers-header{height:48px;border-bottom:1px solid var(--divider);display:flex;align-items:center;padding:0 16px;font-weight:700;color:var(--text-header);gap:8px}
+    .transfers-list{flex:1;overflow-y:auto;padding:8px}
+    .transfer-panel-card{background:var(--bg-primary);border:1px solid var(--divider);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+    .tpc-name{font-size:13px;font-weight:600;color:var(--text-header);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+    .tpc-peer{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+    .tpc-bar{width:100%;height:4px;background:var(--bg-hover);border-radius:2px;overflow:hidden}
+    .tpc-fill{height:100%;border-radius:2px;transition:width .3s}
+    .tpc-fill.sending{background:var(--accent)}
+    .tpc-fill.receiving{background:var(--success)}
+    .tpc-status{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;justify-content:space-between}
+
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--bg-hover);border-radius:3px}
   </style>
 </head>
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen">
-    <div class="login-box">
-      <h2>Tempus Speed</h2>
-      <p>High Speed WebRTC Communications App</p>
-      
-      <div class="avatar-upload-wrapper" onclick="document.getElementById('avatar-upload').click()" title="Upload Avatar">
-        <div id="avatar-preview-container"><span>+</span></div>
-        <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-      </div>
+<div id="reconnect-bar">&#9888; Connection lost &mdash; reconnecting...</div>
 
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>Tempus Speed</h2>
+    <p>High Speed WebRTC Communications</p>
+    <div class="avatar-upload-wrapper" onclick="document.getElementById('avatar-upload').click()" title="Upload Avatar">
+      <div id="avatar-preview-container"><span>+</span></div>
+      <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+    </div>
+    <div class="input-wrapper">
+      <label>Display Name</label>
+      <input type="text" id="username-input" class="login-input" placeholder="What should we call you?" onkeypress="if(event.key==='Enter')initPeer()">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+      <input type="checkbox" id="remember-me" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+      <label for="remember-me" style="color:var(--text-normal);font-size:13px;font-weight:500;cursor:pointer">Keep me logged in</label>
+    </div>
+    <button class="btn" id="login-btn" onclick="initPeer()">Start</button>
+  </div>
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-overlay" id="add-friend-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add Friend</h2><p>Connect via their 8-digit ID</p></div>
+    <div class="modal-content">
+      <input type="text" id="friend-id-input" class="login-input" placeholder="1234-5678" maxlength="64" autocomplete="off" onkeypress="if(event.key==='Enter')addFriend()">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('add-friend-modal')">Cancel</button>
+      <button class="btn btn-sm" onclick="addFriend()">Add Friend</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="create-group-modal">
+  <div class="modal modal-wide">
+    <div class="modal-header"><h2>Create Group</h2><p>Start a group chat with your friends</p></div>
+    <div class="modal-content">
       <div class="input-wrapper">
-        <label>Display Name</label>
-        <input type="text" id="username-input" class="login-input" placeholder="What should we call you?" onkeypress="if(event.key === 'Enter') initPeer()">
+        <label>Group Name</label>
+        <input type="text" id="group-name-input" class="login-input" placeholder="My Group" maxlength="40">
       </div>
-      <div class="input-wrapper" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; margin-bottom: 24px;">
-        <input type="checkbox" id="remember-me" checked style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
-        <label for="remember-me" style="margin: 0; color: var(--text-normal); font-size: 13px; font-weight: 500; text-transform: none; cursor: pointer;">Keep me logged in</label>
-      </div>
-      <button class="btn" id="login-btn" onclick="initPeer()">Start</button>
-    </div>
-  </div>
-
-  <!-- MODALS -->
-  <div class="modal-overlay" id="add-friend-modal">
-    <div class="modal">
-      <div class="modal-header"><h2>Add Friend</h2><p>Connect directly via their 8 digit ID</p></div>
-      <div class="modal-content"><input type="text" id="friend-id-input" class="login-input" placeholder="1234-5678" maxlength="64" autocomplete="off" onkeypress="if(event.key === 'Enter') addFriend()"></div>
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeModal('add-friend-modal')">Cancel</button>
-        <button class="btn" style="width: auto;" onclick="addFriend()">Add Friend</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="settings-modal">
-    <div class="modal">
-      <div class="modal-header"><h2>Settings</h2><p>Customize your experience.</p></div>
-      <div class="modal-content" style="text-align: center;">
-        <label style="display:block; text-align:left; color: var(--text-muted); font-size: 12px; font-weight: 800; text-transform: uppercase;">Theme</label>
-        <div class="theme-selector">
-          <button class="theme-btn" id="theme-light" onclick="setTheme('light')">Light</button>
-          <button class="theme-btn" id="theme-dark" onclick="setTheme('dark')">Dark</button>
-          <button class="theme-btn" id="theme-amoled" onclick="setTheme('amoled')">Midnight</button>
-        </div>
-        
-        <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--divider);">
-          <button class="btn danger" style="width: auto;" onclick="logout()">Log Out / Switch Account</button>
-          <button class="btn danger" style="width: auto; margin-left: 8px;" onclick="burnAccount()">Burn Account</button>
+      <div class="input-wrapper">
+        <label>Add Members (select from friends)</label>
+        <div id="group-member-picker" style="background:var(--bg-tertiary);border-radius:4px;padding:8px;max-height:200px;overflow-y:auto">
+          <div style="color:var(--text-muted);font-size:13px;padding:4px">No friends online to add. Add friends first.</div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn" style="width: auto;" onclick="closeModal('settings-modal')">Done</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('create-group-modal')">Cancel</button>
+      <button class="btn btn-sm" onclick="createGroup()">Create Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP MEMBERS MODAL -->
+<div class="modal-overlay" id="group-members-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="gm-title">Group Members</h2><p id="gm-subtitle"></p></div>
+    <div class="modal-content" id="gm-list"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('group-members-modal')">Close</button>
+      <button class="btn btn-sm danger" id="gm-leave-btn" onclick="leaveGroup()">Leave Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Settings</h2><p>Customize your experience</p></div>
+    <div class="modal-content" style="text-align:center">
+      <label style="display:block;text-align:left;color:var(--text-muted);font-size:12px;font-weight:800;text-transform:uppercase">Theme</label>
+      <div class="theme-selector">
+        <button class="theme-btn" id="theme-light" onclick="setTheme('light')">Light</button>
+        <button class="theme-btn" id="theme-dark" onclick="setTheme('dark')">Dark</button>
+        <button class="theme-btn" id="theme-amoled" onclick="setTheme('amoled')">Midnight</button>
       </div>
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--divider)">
+        <div style="color:var(--text-muted);font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:12px;text-align:left">Transfer Settings</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px">
+          <label for="chunk-size-sel" style="color:var(--text-normal)">Chunk size</label>
+          <select id="chunk-size-sel" style="background:var(--bg-tertiary);border:none;color:var(--text-normal);border-radius:4px;padding:6px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none">
+            <option value="16384">16 KB (very safe)</option>
+            <option value="65536" selected>64 KB (default)</option>
+            <option value="131072">128 KB (fast)</option>
+            <option value="262136">256 KB (max — may fail on some browsers)</option>
+          </select>
+        </div>
+        <div style="color:var(--text-muted);font-size:12px;margin-top:6px;text-align:left">WebRTC caps messages at 256 KB. Larger chunks may fail — use 64 KB if transfers get stuck.</div>
+      </div>
+      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--divider)">
+        <button class="btn danger btn-sm" onclick="logout()" style="margin-right:8px">Log Out</button>
+        <button class="btn danger btn-sm" onclick="burnAccount()">Burn Account</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" onclick="closeModal('settings-modal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div id="servers-bar">
+    <div class="server-icon active" title="Direct Messages" style="background:var(--accent)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97A9.954 9.954 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+    </div>
+    <div class="server-separator"></div>
+    <div class="server-icon" style="color:var(--success)" onclick="openModal('add-friend-modal')" title="Add Friend">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <div class="server-icon" style="color:var(--accent)" onclick="openCreateGroupModal()" title="Create Group">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    </div>
+    <div class="server-icon" id="transfers-toggle-btn" title="Transfers" onclick="toggleTransfersPanel()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><polyline points="8 7 12 3 16 7"/><line x1="12" y1="3" x2="12" y2="12"/></svg>
     </div>
   </div>
 
-  <!-- MAIN APP -->
-  <div id="app">
-    <div id="servers-bar">
-      <div class="server-icon active" style="background: var(--accent);"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97A9.954 9.954 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.27 0-2.48-.24-3.59-.68l-4.14 1.21 1.21-4.14A7.954 7.954 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/></svg></div>
-      <div class="server-separator"></div>
-      <div class="server-icon" style="color: var(--success); background: var(--bg-primary);" onclick="openModal('add-friend-modal')" title="Add Friend"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+  <div id="channels-bar">
+    <div class="channels-header">
+      <span>Messages</span>
     </div>
-
-    <div id="channels-bar">
-      <div class="channels-header">Direct Messages</div>
-      <div class="channels-list" id="dm-list"></div>
-      <div class="user-controls">
-        <div class="avatar" id="my-avatar">C</div>
-        <div class="user-info" onclick="copyMyId()" title="Click to copy ID"><div class="user-name" id="my-name-display">Name</div><div class="user-id" id="my-id-display">#0000-0000</div></div>
-        <button class="action-btn" onclick="openModal('settings-modal')" title="Settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </button>
+    <div class="channels-list" id="dm-list">
+      <div class="channels-section-label">Direct Messages
+        <span style="font-size:16px;font-weight:400">&rsaquo;</span>
       </div>
+      <div id="dm-items"></div>
+      <div class="channels-section-label" id="group-section-label">Group Chats
+        <span style="font-size:16px;font-weight:400">&rsaquo;</span>
+      </div>
+      <div id="group-items"></div>
     </div>
+    <div class="user-controls">
+      <div class="avatar" id="my-avatar">C</div>
+      <div class="user-info" onclick="copyMyId()" title="Click to copy ID">
+        <div class="user-name" id="my-name-display">Name</div>
+        <div class="user-id" id="my-id-display">#0000-0000</div>
+      </div>
+      <button class="action-btn" onclick="openModal('settings-modal')" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
 
-    <div id="main-chat">
-      <div id="chat-wrapper" style="display:none; flex-direction:column; height:100%;">
-        <div class="chat-header">
-          <div class="chat-header-title">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-muted);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-            <span id="active-chat-name">Friend</span>
+  <div id="main-chat">
+    <div id="chat-wrapper" style="display:none;flex-direction:column;height:100%">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-muted)" id="chat-header-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+          <span id="active-chat-name">Friend</span>
+          <div class="chat-members-pill" id="members-pill" style="display:none" onclick="showGroupMembers()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <span id="members-count">0 members</span>
           </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
           <div class="chat-search-box">
             <input type="text" id="chat-search-input" placeholder="Search messages..." autocomplete="off" oninput="loadAndRenderMessages(this.value)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
-        </div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input-wrapper">
-          <div class="attachment-preview" id="attachment-preview">
-            <span id="attachment-name" style="flex:1; font-size:12px; color:var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-            <button onclick="clearAttachment()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-weight:bold;padding:0 8px;">
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-          </div>
-          <div class="chat-input-box">
-            <div class="input-plus" onclick="document.getElementById('file-upload').click()" title="Attach File (Max 2.5MB)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </div>
-            <input type="file" id="file-upload" style="display:none" onchange="handleFileUpload(event)">
-            <input type="text" id="chat-input" placeholder="Message" autocomplete="off">
-            <button class="send-btn" type="button" onclick="handleInputSubmit()">Send</button>
-          </div>
+          <button class="action-btn" onclick="triggerLargeFileTransfer()" title="Send Large File (up to 20 GB)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
         </div>
       </div>
-      
-      <div class="empty-state" id="empty-state">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-        <h3>No connection active</h3>
-        <p>Select a friend or add someone using their 8-digit ID.</p>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-wrapper">
+        <div class="attachment-preview" id="attachment-preview">
+          <span id="attachment-name" style="flex:1;font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button onclick="clearAttachment()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-weight:bold;padding:0 8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="chat-input-box" id="chat-input-form">
+          <div class="input-plus" onclick="document.getElementById('file-upload').click()" title="Attach File (small files, max 2.5MB - use the upload button for files up to 20 GB)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <input type="file" id="file-upload" style="display:none" onchange="handleFileUpload(event)">
+          <input type="file" id="large-file-upload" style="display:none" onchange="handleLargeFileUpload(event)">
+          <input type="text" id="chat-input" placeholder="Message" autocomplete="off">
+          <button class="send-btn" type="submit">Send</button>
+        </form>
       </div>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+      <h3>No conversation active</h3>
+      <p>Select a friend or group, or add someone using their 8-digit ID.</p>
     </div>
   </div>
 
-  <script>
-    // --- STATE ---
-    let peer, myId, myName, myAvatar = null, activeChatId = null;
-    let editingMsgId = null, pendingAttachment = null, titleInterval = null;
-    const connections = {}; 
-    let friends = JSON.parse(localStorage.getItem('connect_friends') || '{}');
-    let offlineQueue = JSON.parse(localStorage.getItem('connect_queue') || '{}');
-    let unreadCounts = JSON.parse(localStorage.getItem('connect_unread') || '{}');
-    let db;
+  <div id="transfers-panel">
+    <div class="transfers-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><polyline points="8 7 12 3 16 7"/><line x1="12" y1="3" x2="12" y2="12"/></svg>
+      File Transfers
+    </div>
+    <div class="transfers-list" id="active-transfers-list">
+      <div style="color:var(--text-muted);font-size:13px;padding:12px;text-align:center">No active transfers</div>
+    </div>
+  </div>
+</div>
 
-    // --- THEME ---
-    const savedTheme = localStorage.getItem('connect_theme') || 'dark';
-    setTheme(savedTheme);
+<script>
+// ===================== STATE =====================
+let peer, myId, myName, myAvatar = null, activeChatId = null, activeChatIsGroup = false;
+let editingMsgId = null, pendingAttachment = null, titleInterval = null;
+const connections = {};
+let friends = JSON.parse(localStorage.getItem('ts_friends') || '{}');
+let groups = JSON.parse(localStorage.getItem('ts_groups') || '{}');
+let offlineQueue = {};
+let unreadCounts = JSON.parse(localStorage.getItem('ts_unread') || '{}');
+let db, reconnectTimer = null;
+const pendingConnects = {};
+const connectRetryTimers = {};
+const queueFlushPromises = {};
 
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('connect_theme', theme);
-      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = document.getElementById(`theme-${theme}`);
-      if(activeBtn) activeBtn.classList.add('active');
-    }
+// Active file transfers: { transferId: { meta, chunks, received, startTime, speeds, ... } }
+const activeTransfers = {};
+const transferChunkSize = () => Math.min(parseInt(document.getElementById('chunk-size-sel')?.value || '65536'), 262136);
+const MAX_LARGE_FILE_BYTES = 20 * 1024 * 1024 * 1024;
+const OFFLINE_QUEUE_KEY = 'messages';
+const CONNECT_RETRY_DELAY_MS = 5000;
 
-    function generateFormattedId() {
-      const raw = Math.floor(10000000 + Math.random() * 90000000).toString();
-      return `${raw.slice(0, 4)}-${raw.slice(4)}`;
-    }
+// ===================== THEME =====================
+const savedTheme = localStorage.getItem('ts_theme') || 'dark';
+setTheme(savedTheme);
 
-    function normalizeId(value) {
-      if (!value) return '';
-      const raw = value.toString().trim().replace(/^#/, '');
-      if (/^\d{5}$/.test(raw)) return raw;
-      if (/^\d{4}-\d{4}$/.test(raw)) return raw;
-      const digits = raw.replace(/\D/g, '');
-      if (digits.length === 5) return digits;
-      if (digits.length !== 8) return '';
-      return `${digits.slice(0, 4)}-${digits.slice(4)}`;
-    }
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('ts_theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  const ab = document.getElementById('theme-' + theme);
+  if (ab) ab.classList.add('active');
+}
 
-    function normalizeFriendId(value) {
-      if (!value) return '';
-      const raw = value.toString().trim().replace(/^#/, '');
-      if (!raw) return '';
-      if (/^\d{5}$/.test(raw)) return raw;
-      if (/^\d{4}-\d{4}$/.test(raw)) return raw;
-      if (/^\d{8}$/.test(raw)) return `${raw.slice(0, 4)}-${raw.slice(4)}`;
-      // Accept general PeerJS-style IDs so adding offline does not reject newer/custom formats.
-      if (/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(raw)) return raw;
-      return '';
-    }
+function generateFormattedId() {
+  const raw = Math.floor(10000000 + Math.random() * 90000000).toString();
+  return raw.slice(0, 4) + '-' + raw.slice(4);
+}
 
-    // --- TITLE NOTIFICATIONS ---
-    function notifyTitle(name) {
-      if(document.hasFocus()) return;
-      document.title = `New message from ${name}`;
-      clearInterval(titleInterval);
-      titleInterval = setInterval(() => {
-        document.title = document.title === 'Tempus Speed' ? `New message from ${name}` : 'Tempus Speed';
-      }, 1000);
-    }
-    
-    window.addEventListener('focus', () => { 
-      clearInterval(titleInterval); 
-      document.title = 'Tempus Speed'; 
-    });
+function normalizeId(v) {
+  if (!v) return '';
+  const raw = v.toString().trim().replace(/^#/, '');
+  if (/^\d{4}-\d{4}$/.test(raw)) return raw;
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 8) return digits.slice(0, 4) + '-' + digits.slice(4);
+  return '';
+}
 
-    // --- INIT DB ---
-    const initDB = () => new Promise((resolve) => {
-      const req = indexedDB.open('ConnectDB', 1);
-      req.onupgradeneeded = (e) => {
-        if (!e.target.result.objectStoreNames.contains('chats')) {
-          e.target.result.createObjectStore('chats');
-        }
+function normalizeFriendId(v) {
+  if (!v) return '';
+  const raw = v.toString().trim().replace(/^#/, '');
+  if (!raw) return '';
+  if (/^\d{4}-\d{4}$/.test(raw)) return raw;
+  if (/^\d{8}$/.test(raw)) return raw.slice(0, 4) + '-' + raw.slice(4);
+  if (/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(raw)) return raw;
+  return '';
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+  return (bytes / 1073741824).toFixed(2) + ' GB';
+}
+
+function formatSpeed(bps) {
+  if (bps < 1024) return bps + ' B/s';
+  if (bps < 1048576) return (bps / 1024).toFixed(0) + ' KB/s';
+  return (bps / 1048576).toFixed(1) + ' MB/s';
+}
+
+function cloneQueueState() {
+  return Object.fromEntries(Object.entries(offlineQueue).map(([peerId, items]) => [peerId, Array.isArray(items) ? items.slice() : []]));
+}
+
+function hasQueuedMessages(peerId) {
+  return Array.isArray(offlineQueue[peerId]) && offlineQueue[peerId].length > 0;
+}
+
+function clearConnectRetry(peerId) {
+  if (!connectRetryTimers[peerId]) return;
+  clearTimeout(connectRetryTimers[peerId]);
+  delete connectRetryTimers[peerId];
+}
+
+function scheduleReconnect(peerId, delay = CONNECT_RETRY_DELAY_MS) {
+  if (!peerId || peerId === myId || connectRetryTimers[peerId]) return;
+  connectRetryTimers[peerId] = setTimeout(() => {
+    delete connectRetryTimers[peerId];
+    attemptConnect(peerId);
+  }, delay);
+}
+
+function persistOfflineQueue() {
+  if (!db || !db.objectStoreNames.contains('queue')) {
+    try { localStorage.setItem('ts_queue', JSON.stringify(cloneQueueState())); }
+    catch (e) { console.warn('Queue fallback persistence failed:', e); }
+    return Promise.resolve();
+  }
+
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction('queue', 'readwrite');
+      tx.objectStore('queue').put(cloneQueueState(), OFFLINE_QUEUE_KEY);
+      tx.oncomplete = () => {
+        localStorage.removeItem('ts_queue');
+        resolve();
       };
-      req.onsuccess = (e) => { db = e.target.result; resolve(); };
-      req.onerror = (e) => console.error("IndexedDB error:", e);
-    });
+      tx.onerror = () => {
+        console.warn('Queue persistence failed:', tx.error);
+        try { localStorage.setItem('ts_queue', JSON.stringify(cloneQueueState())); } catch (_) {}
+        resolve();
+      };
+    } catch (err) {
+      console.warn('Queue transaction failed:', err);
+      try { localStorage.setItem('ts_queue', JSON.stringify(cloneQueueState())); } catch (_) {}
+      resolve();
+    }
+  });
+}
 
-    // --- STARTUP ---
-    window.onload = async () => {
-      await initDB();
+function loadOfflineQueue() {
+  const legacy = JSON.parse(localStorage.getItem('ts_queue') || '{}');
+  offlineQueue = legacy && typeof legacy === 'object' ? legacy : {};
 
-      // Wire up chat input here — avoids inline onkeydown attribute issues on laptop browsers
-      const chatInput = document.getElementById('chat-input');
-      chatInput.addEventListener('keydown', handleInputKey);
+  if (!db || !db.objectStoreNames.contains('queue')) return Promise.resolve();
 
-      const savedId = localStorage.getItem('connect_id') || sessionStorage.getItem('connect_id');
-      const savedName = localStorage.getItem('connect_name') || sessionStorage.getItem('connect_name');
-      const savedAvatar = localStorage.getItem('connect_avatar') || sessionStorage.getItem('connect_avatar');
-      
-      if(savedId && savedName) {
-        myId = normalizeId(savedId) || generateFormattedId();
-        myName = savedName;
-        if(savedAvatar) myAvatar = savedAvatar;
-        
-        const btn = document.getElementById('login-btn');
-        btn.innerText = "Reconnecting... Please wait.";
-        btn.disabled = true;
-        setupPeer();
-      }
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction('queue', 'readonly');
+      const req = tx.objectStore('queue').get(OFFLINE_QUEUE_KEY);
+      req.onsuccess = async e => {
+        const stored = e.target.result;
+        if (stored && typeof stored === 'object') {
+          offlineQueue = stored;
+        } else if (Object.keys(offlineQueue).length > 0) {
+          await persistOfflineQueue();
+        }
+        localStorage.removeItem('ts_queue');
+        resolve();
+      };
+      req.onerror = () => resolve();
+    } catch (err) {
+      console.warn('Queue load failed:', err);
+      resolve();
+    }
+  });
+}
+
+function queuePayload(peerId, payload) {
+  if (!offlineQueue[peerId]) offlineQueue[peerId] = [];
+  offlineQueue[peerId].push(payload);
+  void persistOfflineQueue();
+  renderDMList();
+}
+
+function clearOfflineQueue() {
+  offlineQueue = {};
+  return persistOfflineQueue();
+}
+
+// ===================== TITLE NOTIFICATIONS =====================
+function notifyTitle(name) {
+  if (document.hasFocus()) return;
+  document.title = 'New message from ' + name;
+  clearInterval(titleInterval);
+  titleInterval = setInterval(() => {
+    document.title = document.title === 'Tempus Speed' ? 'New message from ' + name : 'Tempus Speed';
+  }, 1000);
+}
+window.addEventListener('focus', () => { clearInterval(titleInterval); document.title = 'Tempus Speed'; });
+
+// ===================== INDEXEDDB =====================
+const initDB = () => new Promise(resolve => {
+  const req = indexedDB.open('TempusSpeedDB', 3);
+  req.onupgradeneeded = e => {
+    const d = e.target.result;
+    if (!d.objectStoreNames.contains('chats')) d.createObjectStore('chats');
+    if (!d.objectStoreNames.contains('groups')) d.createObjectStore('groups');
+    if (!d.objectStoreNames.contains('queue')) d.createObjectStore('queue');
+  };
+  req.onsuccess = e => { db = e.target.result; resolve(); };
+  req.onerror = e => console.error('IndexedDB error:', e);
+});
+
+// ===================== STARTUP =====================
+window.onload = async () => {
+  await initDB();
+  await loadOfflineQueue();
+  document.getElementById('chat-input').addEventListener('keydown', handleInputKey);
+  document.getElementById('chat-input-form').addEventListener('submit', handleInputSubmit);
+  const savedId = localStorage.getItem('ts_id') || sessionStorage.getItem('ts_id');
+  const savedName = localStorage.getItem('ts_name') || sessionStorage.getItem('ts_name');
+  const savedAvatar = localStorage.getItem('ts_avatar') || sessionStorage.getItem('ts_avatar');
+  if (savedId && savedName) {
+    myId = normalizeId(savedId) || generateFormattedId();
+    myName = savedName;
+    if (savedAvatar) myAvatar = savedAvatar;
+    const btn = document.getElementById('login-btn');
+    btn.innerText = 'Reconnecting...';
+    btn.disabled = true;
+    setupPeer();
+  }
+};
+
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 128; canvas.height = 128;
+      const size = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 128, 128);
+      myAvatar = canvas.toDataURL('image/jpeg', 0.8);
+      document.getElementById('avatar-preview-container').innerHTML = '<img src="' + myAvatar + '">';
     };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
-    function handleAvatarUpload(e) {
-      const file = e.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = 128; canvas.height = 128;
-          const size = Math.min(img.width, img.height);
-          const x = (img.width - size) / 2;
-          const y = (img.height - size) / 2;
-          ctx.drawImage(img, x, y, size, size, 0, 0, 128, 128);
-          myAvatar = canvas.toDataURL('image/jpeg', 0.8);
-          document.getElementById('avatar-preview-container').innerHTML = `<img src="${myAvatar}">`;
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+function initPeer() {
+  const input = document.getElementById('username-input');
+  myName = input.value.trim();
+  if (!myName) return;
+  const btn = document.getElementById('login-btn');
+  btn.innerText = 'Connecting...';
+  btn.disabled = true;
+  const remember = document.getElementById('remember-me').checked;
+  const existingId = localStorage.getItem('ts_id') || sessionStorage.getItem('ts_id');
+  myId = normalizeId(existingId) || generateFormattedId();
+  const store = remember ? localStorage : sessionStorage;
+  store.setItem('ts_id', myId);
+  store.setItem('ts_name', myName);
+  if (myAvatar) store.setItem('ts_avatar', myAvatar);
+  setupPeer();
+}
+
+function setupPeer() {
+  peer = new Peer(myId, {
+    debug: 1,
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+        { urls: 'stun:stun.services.mozilla.com' }
+      ]
     }
+  });
 
-    function initPeer() {
-      const input = document.getElementById('username-input');
-      myName = input.value.trim();
-      if (!myName) return;
-      
-      const btn = document.getElementById('login-btn');
-      btn.innerText = "Connecting... Please wait.";
-      btn.disabled = true;
+  peer.on('open', () => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('reconnect-bar').style.display = 'none';
 
-      const remember = document.getElementById('remember-me').checked;
-      
-      const existingId = localStorage.getItem('connect_id') || sessionStorage.getItem('connect_id');
-      myId = normalizeId(existingId) || generateFormattedId();
-      
-      if (remember) {
-        localStorage.setItem('connect_id', myId);
-        localStorage.setItem('connect_name', myName);
-        if(myAvatar) localStorage.setItem('connect_avatar', myAvatar);
-      } else {
-        sessionStorage.setItem('connect_id', myId);
-        sessionStorage.setItem('connect_name', myName);
-        if(myAvatar) sessionStorage.setItem('connect_avatar', myAvatar);
+    const myAv = document.getElementById('my-avatar');
+    myAv.innerHTML = myAvatar ? '<img src="' + myAvatar + '">' : myName.charAt(0).toUpperCase();
+    document.getElementById('my-name-display').innerText = myName;
+    document.getElementById('my-id-display').innerText = '#' + myId;
+
+    renderDMList();
+    new Set([...Object.keys(friends), ...Object.keys(offlineQueue)]).forEach(fid => attemptConnect(fid));
+  });
+
+  peer.on('connection', conn => handleConnection(conn));
+
+  peer.on('disconnected', () => {
+    document.getElementById('reconnect-bar').style.display = 'block';
+    clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(() => {
+      if (peer && peer.disconnected && !peer.destroyed) {
+        try { peer.reconnect(); } catch (e) {}
       }
-      
-      setupPeer();
-    }
+    }, 3000);
+  });
 
-    function setupPeer() {
-      peer = new Peer(myId, { 
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' },
-            { urls: 'stun:stun.services.mozilla.com' }
-          ]
-        }
-      });
-      
-      peer.on('open', () => {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-
-        document.getElementById('my-avatar').innerHTML = myAvatar ? `<img src="${myAvatar}">` : myName.charAt(0).toUpperCase();
-        document.getElementById('my-name-display').innerText = myName;
-        document.getElementById('my-id-display').innerText = `#${myId}`;
-        
-        renderDMList();
-        Object.keys(friends).forEach(fid => attemptConnect(fid.toString()));
-      });
-      
-      peer.on('connection', (conn) => handleConnection(conn));
-      
-      peer.on('error', (err) => {
-        console.warn(err);
-        // Preserve account identity: never rotate IDs automatically on collision.
-        if (err && (err.type === 'unavailable-id' || /is taken/i.test(err.message || ''))) {
-          try { if (peer && !peer.destroyed) peer.destroy(); } catch (_) {}
-          peer = null;
-          alert(`Your ID (${myId}) is already active in another session. Close other tabs/devices using this account, then press Start again.`);
-          const btn = document.getElementById('login-btn');
-          if (btn) {
-            btn.innerText = "Start";
-            btn.disabled = false;
-          }
-          return;
-        }
-
-        alert("Connection Error: " + err.message);
-        const btn = document.getElementById('login-btn');
-        if (btn) {
-           btn.innerText = "Start";
-           btn.disabled = false;
-        }
-      });
-    }
-
-    function logout() {
-      ['connect_id', 'connect_name', 'connect_avatar', 'connect_friends', 'connect_queue', 'connect_theme', 'connect_unread'].forEach(k => {
-          localStorage.removeItem(k);
-          sessionStorage.removeItem(k);
-      });
-      location.reload();
-    }
-
-    function burnAccount() {
-      if (!confirm("Burn account and erase all local messages/friends on this device? This cannot be undone.")) return;
-
+  peer.on('error', err => {
+    console.warn(err);
+    if (err && (err.type === 'unavailable-id' || /is taken/i.test(err.message || ''))) {
       try { if (peer && !peer.destroyed) peer.destroy(); } catch (_) {}
-
-      Object.keys(localStorage).forEach((k) => { if (k.startsWith('connect_')) localStorage.removeItem(k); });
-      Object.keys(sessionStorage).forEach((k) => { if (k.startsWith('connect_')) sessionStorage.removeItem(k); });
-
-      const deleteReq = indexedDB.deleteDatabase('ConnectDB');
-      deleteReq.onsuccess = () => location.reload();
-      deleteReq.onerror = () => location.reload();
-      deleteReq.onblocked = () => {
-        alert("Please close other Tempus Speed tabs, then try Burn Account again.");
-      };
+      peer = null;
+      alert('Your ID (' + myId + ') is already active in another session. Close other tabs, then press Start again.');
+      const btn = document.getElementById('login-btn');
+      if (btn) { btn.innerText = 'Start'; btn.disabled = false; }
+      return;
     }
-
-    // --- P2P LOGIC ---
-    function addFriend() {
-      let id = normalizeFriendId(document.getElementById('friend-id-input').value);
-      if(!id) {
-          alert("Please enter a valid ID.");
-          return;
-      }
-      if(id === myId) return;
-      closeModal('add-friend-modal');
-      
-      if(!friends[id]) {
-        friends[id] = { id, name: `User ${id}`, avatar: null };
-        saveFriends();
-      }
-      attemptConnect(id);
-      openChat(id);
-    }
-
-    function attemptConnect(id) {
-      if(connections[id] && connections[id].open) return;
-      if(peer && peer.disconnected) peer.reconnect();
-      try {
-        const conn = peer.connect(id);
-        handleConnection(conn); 
-      } catch (err) {
-        console.warn("Connection attempt failed:", err);
-      }
-    }
-
-    function handleConnection(conn) {
-      const peerIdStr = conn.peer.toString();
-      connections[peerIdStr] = conn;
-      
-      const initConn = () => {
-        conn.send({ type: 'handshake', name: myName, avatar: myAvatar });
-        flushQueue(peerIdStr);
-      };
-
-      if (conn.open) {
-        initConn();
-      } else {
-        conn.on('open', initConn);
-      }
-      
-      conn.on('data', async (data) => {
-        try {
-          if (data.type === 'handshake') {
-            friends[peerIdStr] = { id: peerIdStr, name: data.name, avatar: data.avatar };
-            saveFriends();
-            renderDMList();
-            if(activeChatId === peerIdStr) {
-              renderChatHeader();
-              loadAndRenderMessages(); 
-            }
-          } 
-          else if (data.type === 'chat') {
-            if (!friends[peerIdStr]) {
-               friends[peerIdStr] = { id: peerIdStr, name: conn.displayName || `User ${peerIdStr}`, avatar: null };
-               saveFriends();
-            }
-            
-            await saveMsg(peerIdStr, data.msg);
-            
-            if (activeChatId === peerIdStr) {
-              loadAndRenderMessages();
-              if(!document.hasFocus()) notifyTitle(friends[peerIdStr].name);
-            } else {
-              unreadCounts[peerIdStr] = (unreadCounts[peerIdStr] || 0) + 1;
-              saveUnread();
-              renderDMList(); 
-              notifyTitle(friends[peerIdStr].name);
-            }
-          } 
-          else if (data.type === 'edit') {
-            await editMsgDB(peerIdStr, data.msgId, data.newText);
-            if (activeChatId === peerIdStr) loadAndRenderMessages();
-          }
-          else if (data.type === 'delete') {
-            await deleteMsgDB(peerIdStr, data.msgId);
-            if (activeChatId === peerIdStr) loadAndRenderMessages();
-          }
-        } catch (e) {
-          console.error("Data handling error:", e);
+    // For network errors - try to reconnect silently
+    if (err.type === 'network' || err.type === 'server-error') {
+      document.getElementById('reconnect-bar').style.display = 'block';
+      clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        if (peer && !peer.destroyed) {
+          try { peer.reconnect(); } catch (e) { setupPeer(); }
         }
-      });
-
-      conn.on('close', () => {
-        delete connections[peerIdStr];
-        renderDMList();
-      });
-      
-      conn.on('error', () => {
-        delete connections[peerIdStr];
-        renderDMList();
-      });
+      }, 5000);
+      return;
     }
+    alert('Connection Error: ' + err.message);
+    const btn = document.getElementById('login-btn');
+    if (btn) { btn.innerText = 'Start'; btn.disabled = false; }
+  });
+}
 
-    // --- OFFLINE QUEUE ---
-    function flushQueue(peerId) {
-      if(!offlineQueue[peerId] || !connections[peerId] || !connections[peerId].open) return;
-      offlineQueue[peerId].forEach(msgData => {
-        connections[peerId].send(msgData);
-      });
-      delete offlineQueue[peerId];
-      localStorage.setItem('connect_queue', JSON.stringify(offlineQueue));
+function logout() {
+  offlineQueue = {};
+  void persistOfflineQueue();
+  ['ts_id','ts_name','ts_avatar','ts_friends','ts_groups','ts_queue','ts_theme','ts_unread'].forEach(k => {
+    localStorage.removeItem(k); sessionStorage.removeItem(k);
+  });
+  location.reload();
+}
+
+function burnAccount() {
+  if (!confirm('Burn account and erase all local data? This cannot be undone.')) return;
+  try { if (peer && !peer.destroyed) peer.destroy(); } catch (_) {}
+  Object.keys(localStorage).forEach(k => { if (k.startsWith('ts_')) localStorage.removeItem(k); });
+  Object.keys(sessionStorage).forEach(k => { if (k.startsWith('ts_')) sessionStorage.removeItem(k); });
+  const del = indexedDB.deleteDatabase('TempusSpeedDB');
+  del.onsuccess = () => location.reload();
+  del.onerror = () => location.reload();
+  del.onblocked = () => alert('Close other Tempus Speed tabs, then try again.');
+}
+
+// ===================== P2P =====================
+function addFriend() {
+  let id = normalizeFriendId(document.getElementById('friend-id-input').value);
+  if (!id) { alert('Please enter a valid ID.'); return; }
+  if (id === myId) return;
+  closeModal('add-friend-modal');
+  document.getElementById('friend-id-input').value = '';
+  if (!friends[id]) { friends[id] = { id, name: 'User ' + id, avatar: null }; saveFriends(); }
+  attemptConnect(id);
+  openChat(id, false);
+}
+
+function attemptConnect(id) {
+  if (!id || id === myId || !peer || peer.destroyed) return false;
+  if (connections[id]?.open || pendingConnects[id]) return false;
+  clearConnectRetry(id);
+  if (peer && peer.disconnected && !peer.destroyed) { try { peer.reconnect(); } catch (e) {} }
+  try {
+    if (connections[id] && connections[id] !== pendingConnects[id]) {
+      try { connections[id].close(); } catch (_) {}
     }
+    const conn = peer.connect(id, { reliable: true, serialization: 'raw' });
+    pendingConnects[id] = conn;
+    handleConnection(conn);
+    return true;
+  } catch (err) {
+    console.warn('Connect failed:', err);
+    delete pendingConnects[id];
+    scheduleReconnect(id);
+    return false;
+  }
+}
 
-    function sendToPeer(peerId, data) {
-      if(connections[peerId] && connections[peerId].open) {
-        connections[peerId].send(data);
-        return true;
-      } else {
-        attemptConnect(peerId);
-        if(!offlineQueue[peerId]) offlineQueue[peerId] = [];
-        offlineQueue[peerId].push(data);
-        try {
-            localStorage.setItem('connect_queue', JSON.stringify(offlineQueue));
-        } catch(e) {
-            alert("Local storage is full. Cannot queue offline message.");
-            offlineQueue[peerId].pop();
-            return false;
-        }
-        // Return 'queued' so the caller knows it was accepted but not live-sent
-        return 'queued';
+function handleConnection(conn) {
+  const pid = conn.peer.toString();
+  const previous = connections[pid];
+  if (previous && previous !== conn && !previous.open) {
+    try { previous.close(); } catch (_) {}
+  }
+  connections[pid] = conn;
+
+  function clearConnRefs() {
+    if (connections[pid] === conn) delete connections[pid];
+    if (pendingConnects[pid] === conn) delete pendingConnects[pid];
+  }
+
+  function onOpen() {
+    if (pendingConnects[pid] === conn) delete pendingConnects[pid];
+    clearConnectRetry(pid);
+    conn.send(JSON.stringify({ type: 'handshake', name: myName, avatar: myAvatar }));
+    // Flush offline queued messages
+    void flushQueue(pid, conn);
+    renderDMList();
+    if (activeChatId === pid && !activeChatIsGroup) renderChatHeader();
+  }
+
+  if (conn.open) { onOpen(); }
+  else { conn.on('open', onOpen); }
+
+  conn.on('data', async raw => {
+    try {
+      // Binary chunks for large file transfers
+      if (raw instanceof ArrayBuffer) {
+        await handleFileChunk(pid, raw);
+        return;
       }
+      const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      await dispatchMessage(pid, data);
+    } catch (e) { console.error('Data error:', e); }
+  });
+
+  conn.on('close', () => {
+    clearConnRefs();
+    renderDMList();
+    if (activeChatId === pid) renderChatHeader();
+    if (friends[pid] || hasQueuedMessages(pid)) {
+      scheduleReconnect(pid);
+    }
+  });
+
+  conn.on('error', () => {
+    clearConnRefs();
+    renderDMList();
+    if (friends[pid] || hasQueuedMessages(pid)) scheduleReconnect(pid, 8000);
+  });
+}
+
+async function dispatchMessage(pid, data) {
+  if (data.type === 'handshake') {
+    friends[pid] = { id: pid, name: data.name, avatar: data.avatar };
+    saveFriends();
+    renderDMList();
+    if (activeChatId === pid && !activeChatIsGroup) { renderChatHeader(); loadAndRenderMessages(); }
+
+  } else if (data.type === 'chat') {
+    await saveMsg(pid, data.msg);
+    if (activeChatId === pid && !activeChatIsGroup) {
+      loadAndRenderMessages();
+      if (!document.hasFocus()) notifyTitle(friends[pid]?.name || pid);
+    } else {
+      unreadCounts[pid] = (unreadCounts[pid] || 0) + 1;
+      saveUnread(); renderDMList();
+      notifyTitle(friends[pid]?.name || pid);
     }
 
-    // --- MESSAGING ---
-    // FIX: Use addEventListener in window.onload instead of inline onkeydown attribute.
-    // Inline onkeydown on <input> can be blocked by browser autofill/IME managers on
-    // some laptop configurations (especially on macOS/Windows with certain keyboard layouts).
-    function handleInputKey(e) {
-      if (e.key === 'Enter' && !e.isComposing) {
-        // Prevent any form submission or default browser behavior
-        e.preventDefault();
-        handleInputSubmit();
-      } else if (e.key === 'Escape' && editingMsgId) {
-        e.preventDefault();
-        editingMsgId = null;
-        e.target.value = '';
-        e.target.placeholder = `Message @${friends[activeChatId]?.name}`;
+  } else if (data.type === 'edit') {
+    await editMsgDB(pid, data.msgId, data.newText);
+    if (activeChatId === pid && !activeChatIsGroup) loadAndRenderMessages();
+
+  } else if (data.type === 'delete') {
+    await deleteMsgDB(pid, data.msgId);
+    if (activeChatId === pid && !activeChatIsGroup) loadAndRenderMessages();
+
+  } else if (data.type === 'group_chat') {
+    // Relay to other group members if we are host
+    const gid = data.groupId;
+    if (groups[gid]) {
+      const g = groups[gid];
+      await saveGroupMsg(gid, data.msg);
+      if (g.host === myId) {
+        g.members.filter(m => m !== myId && m !== pid).forEach(m => sendToPeer(m, data));
       }
-    }
-
-    async function handleInputSubmit() {
-      const input = document.getElementById('chat-input');
-      const text = input.value.trim();
-      if ((!text && !pendingAttachment) || !activeChatId) return;
-
-      if(editingMsgId) {
-        await editMsgDB(activeChatId, editingMsgId, text);
-        sendToPeer(activeChatId, { type: 'edit', msgId: editingMsgId, newText: text });
-        editingMsgId = null;
-        input.placeholder = `Message @${friends[activeChatId]?.name}`;
-        input.value = '';
+      if (activeChatId === gid && activeChatIsGroup) {
         loadAndRenderMessages();
+        if (!document.hasFocus()) notifyTitle(g.name);
       } else {
-        const msg = {
-          id: Date.now().toString(36),
-          sender: myId,
-          text: text,
-          timestamp: Date.now(),
-          edited: false,
-          attachment: pendingAttachment
-        };
-        
-        const result = sendToPeer(activeChatId, { type: 'chat', msg });
-
-        // Block only on hard failure (attachment to offline peer)
-        if(result === false) return;
-
-        // Save locally and render regardless of whether peer is online or queued
-        await saveMsg(activeChatId, msg);
-        clearAttachment();
-        input.value = '';
-        loadAndRenderMessages();
+        unreadCounts[gid] = (unreadCounts[gid] || 0) + 1;
+        saveUnread(); renderDMList();
+        notifyTitle(g.name);
       }
     }
 
-    // Sequence DB writes to prevent race conditions on bulk messages
-    let dbQueue = Promise.resolve();
-    async function saveMsg(chatId, msg) {
-      return new Promise((resolve) => {
-        dbQueue = dbQueue.then(() => new Promise((next) => {
-          const tx = db.transaction('chats', 'readwrite');
-          const store = tx.objectStore('chats');
-          const req = store.get(chatId);
-          req.onsuccess = (e) => {
-            const hist = e.target.result || [];
-            hist.push(msg);
-            const putReq = store.put(hist, chatId);
-            putReq.onsuccess = () => { resolve(); next(); };
-            putReq.onerror = () => { resolve(); next(); };
-          };
-          req.onerror = () => { resolve(); next(); };
-        }));
-      });
+  } else if (data.type === 'group_invite') {
+    // Accept group invite
+    const g = data.group;
+    if (!groups[g.id]) {
+      groups[g.id] = g;
+      saveGroups();
+      renderDMList();
+      addSystemMsg(g.id, 'You were added to ' + g.name);
     }
 
-    async function editMsgDB(chatId, msgId, newText) {
-      return new Promise((resolve) => {
-        dbQueue = dbQueue.then(() => new Promise((next) => {
-          const tx = db.transaction('chats', 'readwrite');
-          const store = tx.objectStore('chats');
-          const req = store.get(chatId);
-          req.onsuccess = (e) => {
-            const hist = e.target.result || [];
-            const m = hist.find(x => x.id === msgId);
-            if(m) { m.text = newText; m.edited = true; }
-            const putReq = store.put(hist, chatId);
-            putReq.onsuccess = () => { resolve(); next(); };
-            putReq.onerror = () => { resolve(); next(); };
-          };
-          req.onerror = () => { resolve(); next(); };
-        }));
-      });
+  } else if (data.type === 'group_member_update') {
+    if (groups[data.groupId]) {
+      groups[data.groupId].members = data.members;
+      groups[data.groupId].memberNames = data.memberNames;
+      saveGroups();
+      renderDMList();
+      if (activeChatId === data.groupId && activeChatIsGroup) renderChatHeader();
     }
 
-    async function deleteMsgDB(chatId, msgId) {
-      return new Promise((resolve) => {
-        dbQueue = dbQueue.then(() => new Promise((next) => {
-          const tx = db.transaction('chats', 'readwrite');
-          const store = tx.objectStore('chats');
-          const req = store.get(chatId);
-          req.onsuccess = (e) => {
-            let hist = e.target.result || [];
-            hist = hist.filter(x => x.id !== msgId);
-            const putReq = store.put(hist, chatId);
-            putReq.onsuccess = () => { resolve(); next(); };
-            putReq.onerror = () => { resolve(); next(); };
-          };
-          req.onerror = () => { resolve(); next(); };
-        }));
-      });
-    }
-
-    function triggerEdit(msgId) {
-      const tx = db.transaction('chats', 'readonly');
-      tx.objectStore('chats').get(activeChatId).onsuccess = (e) => {
-        const hist = e.target.result || [];
-        const msg = hist.find(m => m.id === msgId);
-        if(msg) {
-          editingMsgId = msgId;
-          const input = document.getElementById('chat-input');
-          input.value = msg.text;
-          input.placeholder = "Editing message... (Press Esc to cancel)";
-          input.focus();
-        }
-      };
-    }
-
-    function triggerDelete(msgId) {
-      if(confirm("Are you sure you want to delete this message?")) {
-        deleteMsgDB(activeChatId, msgId).then(() => {
-          sendToPeer(activeChatId, { type: 'delete', msgId });
-          loadAndRenderMessages();
-        });
-      }
-    }
-
-    function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if(!file) return;
-      if(file.size > 2.5 * 1024 * 1024) {
-          alert("File is too large! Maximum size is 2.5MB.");
-          e.target.value = '';
-          return;
-      }
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        pendingAttachment = { name: file.name, data: ev.target.result, isImg: file.type.startsWith('image/') };
-        document.getElementById('attachment-preview').style.display = 'flex';
-        let previewHtml = '';
-        if(pendingAttachment.isImg) previewHtml = `<img src="${ev.target.result}"> `;
-        document.getElementById('attachment-name').innerHTML = previewHtml + file.name;
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    function clearAttachment() {
-      pendingAttachment = null;
-      document.getElementById('attachment-preview').style.display = 'none';
-      document.getElementById('file-upload').value = '';
-    }
-
-    // --- RENDERING ---
-    function saveFriends() { localStorage.setItem('connect_friends', JSON.stringify(friends)); }
-    function saveUnread() { localStorage.setItem('connect_unread', JSON.stringify(unreadCounts)); }
-
-    function getAvatarHtml(friendData, fallbackLetter) {
-        if(friendData && friendData.avatar) return `<img src="${friendData.avatar}">`;
-        return fallbackLetter.charAt(0).toUpperCase();
-    }
-
-    function renderDMList() {
-      const list = document.getElementById('dm-list');
-      list.innerHTML = '';
-      Object.keys(friends).forEach(id => {
-        const f = friends[id];
-        const isOnline = connections[id] && connections[id].open;
-        const div = document.createElement('div');
-        div.className = `channel-item ${activeChatId === id ? 'active' : ''}`;
-        
-        let avatarInner = getAvatarHtml(f, f.name);
-        let unreadBadge = unreadCounts[id] ? `<div style="background:var(--danger); color:#fff; font-size:11px; font-weight:700; padding:2px 6px; border-radius:10px; margin-left:auto;">${unreadCounts[id]}</div>` : '';
-        
-        div.innerHTML = `
-          <div class="avatar" style="background: var(--bg-tertiary); color: var(--text-normal);">
-            ${avatarInner}
-            <div class="status-dot ${isOnline ? 'online' : 'offline'}"></div>
-          </div>
-          <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;">
-            ${f.name}
-          </div>
-          ${unreadBadge}
-          <button class="dm-remove-btn" title="Remove DM" onclick="removeFriend('${id}', event)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
-        `;
-        div.onclick = () => openChat(id);
-        list.appendChild(div);
-      });
-    }
-
-    function removeFriend(id, e) {
-      if (e) e.stopPropagation();
-      const friendName = friends[id]?.name || `User ${id}`;
-      if (!confirm(`Remove ${friendName} from Direct Messages?`)) return;
-
-      if (connections[id]) {
-        try { connections[id].close(); } catch (_) {}
-        delete connections[id];
-      }
-
-      delete friends[id];
-      delete unreadCounts[id];
-      delete offlineQueue[id];
-      saveFriends();
-      saveUnread();
-      localStorage.setItem('connect_queue', JSON.stringify(offlineQueue));
-
-      const tx = db.transaction('chats', 'readwrite');
-      tx.objectStore('chats').delete(id);
-
-      if (activeChatId === id) {
-        activeChatId = null;
-        editingMsgId = null;
+  } else if (data.type === 'group_dissolve') {
+    if (groups[data.groupId]) {
+      const gname = groups[data.groupId].name;
+      delete groups[data.groupId];
+      saveGroups();
+      renderDMList();
+      if (activeChatId === data.groupId) {
+        activeChatId = null; activeChatIsGroup = false;
         document.getElementById('chat-wrapper').style.display = 'none';
         document.getElementById('empty-state').style.display = 'flex';
       }
+      alert('Group "' + gname + '" was dissolved by the host.');
+    }
 
+  } else if (data.type === 'file_transfer_offer') {
+    handleTransferOffer(pid, data);
+
+  } else if (data.type === 'file_transfer_accept') {
+    handleTransferAccept(pid, data);
+
+  } else if (data.type === 'file_transfer_complete') {
+    const t = activeTransfers[data.transferId];
+    if (t && t.direction === 'receiving') {
+      t.completeSignalReceived = true;
+      await finalizeReceiveTransfer(data.transferId);
+    }
+
+  } else if (data.type === 'file_transfer_ack') {
+    finalizeSendTransfer(data.transferId, pid);
+
+  } else if (data.type === 'file_transfer_cancel') {
+    await cancelTransfer(data.transferId, data.reason || 'Cancelled by sender', { notifyPeer: false });
+  }
+}
+
+// ===================== OFFLINE QUEUE =====================
+async function flushQueue(peerId, connOverride) {
+  if (queueFlushPromises[peerId]) return queueFlushPromises[peerId];
+  queueFlushPromises[peerId] = (async () => {
+    const conn = connOverride || connections[peerId];
+    if (!conn?.open || !hasQueuedMessages(peerId)) return;
+
+    const pending = offlineQueue[peerId].slice();
+    delete offlineQueue[peerId];
+    await persistOfflineQueue();
+    renderDMList();
+
+    let failedAt = -1;
+    for (let i = 0; i < pending.length; i++) {
+      if (connections[peerId] !== conn || !conn.open) {
+        failedAt = i;
+        break;
+      }
+      try {
+        conn.send(pending[i]);
+      } catch (e) {
+        console.warn('Flush send failed:', e);
+        failedAt = i;
+        break;
+      }
+    }
+
+    if (failedAt !== -1) {
+      offlineQueue[peerId] = pending.slice(failedAt).concat(offlineQueue[peerId] || []);
+      await persistOfflineQueue();
       renderDMList();
+      scheduleReconnect(peerId);
     }
+  })().finally(() => {
+    delete queueFlushPromises[peerId];
+  });
+  return queueFlushPromises[peerId];
+}
 
-    function renderChatHeader() {
-      if(!activeChatId) return;
-      const name = friends[activeChatId]?.name || `User ${activeChatId}`;
-      document.getElementById('active-chat-name').innerText = name;
-      if(!editingMsgId) document.getElementById('chat-input').placeholder = `Message @${name}`;
+function sendToPeer(peerId, data) {
+  const payload = typeof data === 'string' ? data : JSON.stringify(data);
+  if (connections[peerId]?.open) {
+    try {
+      connections[peerId].send(payload);
+      return true;
+    } catch (e) {
+      console.warn(e);
+      const staleConn = connections[peerId];
+      try { staleConn.close(); } catch (_) {}
+      if (connections[peerId] === staleConn) delete connections[peerId];
+      if (pendingConnects[peerId] === staleConn) delete pendingConnects[peerId];
     }
+  }
+  attemptConnect(peerId);
+  queuePayload(peerId, payload);
+  scheduleReconnect(peerId, 1500);
+  return 'queued';
+}
 
-    function openChat(id) {
-      activeChatId = id;
-      
-      if(unreadCounts[id]) {
-        delete unreadCounts[id];
-        saveUnread();
+// ===================== LARGE FILE TRANSFER =====================
+// Protocol:
+//   Sender -> { type:'file_transfer_offer', transferId, name, size, mimeType, totalChunks, checksum? }
+//   Receiver -> { type:'file_transfer_accept', transferId } or file_transfer_reject
+//   Sender sends ArrayBuffer chunks: [4-byte transferId hash][4-byte chunk index][data]
+//   After all chunks: Sender -> { type:'file_transfer_complete', transferId }
+//   Receiver reassembles, creates Blob, offers download
+
+const CHUNK_HEADER = 8; // 4 bytes transferIdHash + 4 bytes chunkIndex
+const SEND_BUFFER_HIGH_WATER = 16 * 1024 * 1024;
+const SEND_BUFFER_LOW_WATER  =  4 * 1024 * 1024;
+const MEMORY_RECEIVE_LIMIT = 256 * 1024 * 1024;
+
+// O(1) tid lookup by numeric hash — avoids scanning all activeTransfers on every chunk
+const tidNumMap = new Map(); // tidNum -> tid string
+
+function makeTid() {
+  // Use crypto for collision-proof IDs — Math.random() 8-char strings have ~1/2^28 collision chance per pair
+  const arr = new Uint32Array(2);
+  crypto.getRandomValues(arr);
+  const tid = arr[0].toString(36) + arr[1].toString(36);
+  tidNumMap.set(tidToNum(tid), tid);
+  return tid;
+}
+
+function tidToNum(tid) {
+  let h = 0;
+  for (let i = 0; i < tid.length; i++) { h = (Math.imul(31, h) + tid.charCodeAt(i)) | 0; }
+  return h >>> 0;
+}
+
+function canUseFileSystemAccess() {
+  return typeof window.showSaveFilePicker === 'function';
+}
+
+function canUseOPFS() {
+  return !!navigator.storage?.getDirectory;
+}
+
+function getTransferPct(t) {
+  if (!t) return 0;
+  const total = Math.max(t.totalChunks || 0, 1);
+  const value = t.direction === 'sending' ? (t.sentChunks || 0) : (t.receivedCount || 0);
+  return Math.max(0, Math.min(100, Math.round((value / total) * 100)));
+}
+
+function getTransferAvgSpeed(t) {
+  if (!t) return 0;
+  if (t.speeds?.length) return t.speeds.reduce((a, b) => a + b, 0) / t.speeds.length;
+  // Fallback: instantaneous speed from bytes transferred since startTime
+  if (t.startTime) {
+    const elapsed = (Date.now() - t.startTime) / 1000;
+    if (elapsed > 0.1) {
+      const bytesTransferred = t.direction === 'sending'
+        ? (t.sentChunks || 0) * (t.chunkSize || 0)
+        : (t.receivedCount || 0) * (t.chunkSize || 0);
+      return bytesTransferred / elapsed;
+    }
+  }
+  return 0;
+}
+
+function getPendingTransferStatus(t) {
+  if (!t || t.direction !== 'sending') return 'Pending';
+  const targets = Array.isArray(t.targets) ? t.targets : [];
+  const onlineTargets = targets.filter(peerId => connections[peerId]?.open).length;
+  if ((t.acceptedBy?.length || 0) > 0) return 'Preparing transfer...';
+  if (onlineTargets === 0) return targets.length > 1 ? 'Queued until recipients reconnect' : 'Queued until recipient reconnects';
+  return targets.length > 1 ? 'Waiting for recipients to accept' : 'Waiting for recipient to accept';
+}
+
+function recordTransferBytes(t, byteLength) {
+  const now = Date.now();
+  if (!t.startTime) t.startTime = now;
+  if (!t.lastTime) t.lastTime = now;
+  t.bytesSinceLastSample = (t.bytesSinceLastSample || 0) + byteLength;
+  const elapsed = (now - t.lastTime) / 1000;
+  if (elapsed >= 0.5) {
+    t.speeds.push(t.bytesSinceLastSample / elapsed);
+    if (t.speeds.length > 12) t.speeds.shift();
+    t.bytesSinceLastSample = 0;
+    t.lastTime = now;
+  }
+}
+
+function sanitizeTransferFileName(name) {
+  return (name || 'download').replace(/[\\/:*?"<>|]/g, '_');
+}
+
+function waitForBufferedAmount(conn, transfer) {
+  // PeerJS 1.5.x exposes the RTCDataChannel as _dc internally
+  const dc = conn?._dc || conn?.dataChannel;
+  if (!dc || typeof dc.bufferedAmount !== 'number') return Promise.resolve();
+  if (dc.bufferedAmount <= SEND_BUFFER_HIGH_WATER) return Promise.resolve();
+  // Event-driven drain — no polling, no wasted 25ms gaps
+  return new Promise(resolve => {
+    if ('bufferedAmountLowThreshold' in dc) dc.bufferedAmountLowThreshold = SEND_BUFFER_LOW_WATER;
+    const onLow = () => { dc.removeEventListener('bufferedamountlow', onLow); clearInterval(fallback); resolve(); };
+    dc.addEventListener('bufferedamountlow', onLow);
+    // Safety fallback if event never fires (some browsers)
+    const fallback = setInterval(() => {
+      if (transfer.cancelled || !conn.open || dc.bufferedAmount <= SEND_BUFFER_HIGH_WATER) {
+        clearInterval(fallback);
+        dc.removeEventListener('bufferedamountlow', onLow);
+        resolve();
       }
-      
-      attemptConnect(id);
-      
-      document.getElementById('empty-state').style.display = 'none';
-      document.getElementById('chat-wrapper').style.display = 'flex';
-      
-      const searchBox = document.getElementById('chat-search-input');
-      if(searchBox) searchBox.value = '';
-      
-      renderDMList(); 
-      renderChatHeader();
-      loadAndRenderMessages();
-      document.getElementById('chat-input').focus();
+    }, 50);
+  });
+}
+
+function refreshTransferUi(tid, state, url, name) {
+  updateTransferMsg(tid, state || activeTransfers[tid]?.state, url, name);
+  if (state === 'done' || state === 'cancelled' || !document.getElementById('tpcard-' + tid)) {
+    renderTransfersPanel();
+  } else {
+    updateTransferPanelCard(tid);
+  }
+}
+
+async function prepareReceiveTarget(t) {
+  const safeName = sanitizeTransferFileName(t.name);
+
+  // Skip showSaveFilePicker — it requires a user gesture and we auto-accept.
+  // Use OPFS if available (good for large files), otherwise fall back to memory.
+
+  if (canUseOPFS()) {
+    const root = await navigator.storage.getDirectory();
+    const tempName = makeTid() + '-' + safeName;
+    const handle = await root.getFileHandle(tempName, { create: true });
+    t.opfsRoot = root;
+    t.opfsFileName = tempName;
+    t.fileHandle = handle;
+    t.writable = await handle.createWritable();
+    t.storageMode = 'opfs';
+    return;
+  }
+
+  if (t.size > MEMORY_RECEIVE_LIMIT) {
+    throw new Error('This browser cannot safely receive files this large without File System Access.');
+  }
+
+  t.storageMode = 'memory';
+  t.receivedChunks = new Array(t.totalChunks);
+}
+
+async function cleanupTransferResources(t, discardLocal = true) {
+  if (!t) return;
+  if (discardLocal && t.downloadUrl) {
+    try { URL.revokeObjectURL(t.downloadUrl); } catch (_) {}
+    t.downloadUrl = null;
+  }
+  if (t.writable) {
+    try {
+      if (discardLocal && typeof t.writable.abort === 'function') await t.writable.abort();
+      else await t.writable.close();
+    } catch (_) {}
+    t.writable = null;
+  }
+  if (discardLocal && t.storageMode === 'opfs' && t.opfsRoot && t.opfsFileName) {
+    try { await t.opfsRoot.removeEntry(t.opfsFileName); } catch (_) {}
+  }
+}
+
+function triggerLargeFileTransfer() {
+  if (!activeChatId) return;
+  document.getElementById('large-file-upload').click();
+}
+
+function handleLargeFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = '';
+
+  if (file.size > MAX_LARGE_FILE_BYTES) {
+    alert('Large file transfers currently support up to 20 GB per file.');
+    return;
+  }
+
+  const tid = makeTid();
+  const targets = activeChatIsGroup
+    ? (groups[activeChatId]?.members || []).filter(m => m !== myId)
+    : [activeChatId];
+
+  if (targets.length === 0) { alert('No members to send to.'); return; }
+
+  const chunkSize = transferChunkSize();
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  const offerMsg = {
+    type: 'file_transfer_offer',
+    transferId: tid,
+    name: file.name,
+    size: file.size,
+    mimeType: file.type || 'application/octet-stream',
+    totalChunks,
+    chunkSize,
+    chatId: activeChatId,
+    chatIsGroup: activeChatIsGroup
+  };
+
+  // Register in activeTransfers
+  activeTransfers[tid] = {
+    direction: 'sending',
+    file,
+    name: file.name,
+    size: file.size,
+    totalChunks,
+    chunkSize,
+    targets,
+    acceptedBy: [],
+    completedBy: [],
+    sendingTo: {},
+    sentChunks: 0,
+    startTime: null,
+    speeds: [],
+    bytesSinceLastSample: 0,
+    lastTime: null,
+    cancelled: false,
+    chatId: activeChatId,
+    chatIsGroup: activeChatIsGroup,
+    state: 'pending',
+    cancelReason: ''
+  };
+
+  targets.forEach(tid2 => sendToPeer(tid2, offerMsg));
+  renderTransfersPanel();
+
+  // Stall detection: if no bytes sent after 30s, flag it so the UI shows a hint
+  setTimeout(() => {
+    const tr = activeTransfers[tid];
+    if (tr && !tr.cancelled && tr.state !== 'done' && (tr.sentChunks || 0) === 0) {
+      tr._stalledNotice = true;
+      refreshTransferUi(tid, tr.state);
     }
+  }, 30000);
 
-    function loadAndRenderMessages(searchQuery = '') {
-      if(!activeChatId) return;
-      
-      if (typeof searchQuery !== 'string') {
-        searchQuery = document.getElementById('chat-search-input')?.value || '';
-      }
-      
-      const tx = db.transaction('chats', 'readonly');
-      tx.objectStore('chats').get(activeChatId).onsuccess = (e) => {
-        let history = e.target.result || [];
-        
-        if (searchQuery) {
-           const query = searchQuery.toLowerCase();
-           history = history.filter(msg => msg.text.toLowerCase().includes(query));
-        }
+  // Hard timeout: if still stuck at 0% after 90s, auto-cancel so the card never stays forever
+  setTimeout(() => {
+    const tr = activeTransfers[tid];
+    if (tr && !tr.cancelled && tr.state !== 'done' && (tr.sentChunks || 0) === 0) {
+      cancelTransfer(tid, 'Transfer timed out — peer unreachable or file too large for WebRTC');
+    }
+  }, 90000);
 
-        const container = document.getElementById('chat-messages');
-        container.innerHTML = '';
-        
-        let lastSender = null, lastTimestamp = 0;
-        
-        history.forEach(msg => {
-          const isMe = msg.sender === myId;
-          const senderName = isMe ? myName : (friends[msg.sender]?.name || `User ${msg.sender}`);
-          
-          let avatarHtml = isMe 
-            ? (myAvatar ? `<img src="${myAvatar}">` : myName.charAt(0).toUpperCase())
-            : getAvatarHtml(friends[msg.sender], senderName);
+  // Add a pending card in chat
+  const pendingMsg = {
+    id: 'ft_' + tid,
+    sender: myId,
+    text: '',
+    timestamp: Date.now(),
+    edited: false,
+    fileTransfer: { tid, name: file.name, size: file.size, direction: 'sending', state: 'pending' }
+  };
+  if (activeChatIsGroup) { saveGroupMsg(activeChatId, pendingMsg).then(() => loadAndRenderMessages()); }
+  else { saveMsg(activeChatId, pendingMsg).then(() => loadAndRenderMessages()); }
+}
 
-          const dateObj = new Date(msg.timestamp);
-          const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const isToday = dateObj.toDateString() === new Date().toDateString();
-          const displayTime = isToday ? `Today at ${timeStr}` : `${dateObj.toLocaleDateString()} ${timeStr}`;
-          
-          const isCompact = !searchQuery && (lastSender === msg.sender) && (msg.timestamp - lastTimestamp < 300000);
-          
-          let parsedText = msg.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-            .replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-          const urlRegex = /(https?:\/\/[^\s]+)/g;
-          parsedText = parsedText.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-          
-          const editedTag = msg.edited ? `<span class="edited-badge">(edited)</span>` : '';
-          
-          let attachHtml = '';
-          if(msg.attachment) {
-            if(msg.attachment.isImg) attachHtml = `<img src="${msg.attachment.data}" alt="${msg.attachment.name}" onclick="window.open(this.src)">`;
-            else attachHtml = `<a href="${msg.attachment.data}" download="${msg.attachment.name}" style="display:inline-block; margin-top:8px; padding:8px 12px; background:var(--bg-secondary); border-radius:4px; font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg> Download ${msg.attachment.name}</a>`;
-          }
+function handleTransferOffer(pid, data) {
+  const { transferId: tid, name, size, mimeType, totalChunks, chunkSize } = data;
+  const chatId = data.chatIsGroup ? data.chatId : pid;
+  const chatIsGroup = !!data.chatIsGroup;
+  const t = {
+    tid,
+    direction: 'receiving',
+    name,
+    size,
+    mimeType: mimeType || 'application/octet-stream',
+    totalChunks,
+    chunkSize,
+    receivedChunks: null,
+    receivedMap: new Uint8Array(totalChunks),
+    pendingChunks: new Map(),
+    nextChunkIndex: 0,
+    receivedCount: 0,
+    from: pid,
+    startTime: Date.now(),
+    speeds: [],
+    bytesSinceLastSample: 0,
+    lastTime: null,
+    cancelled: false,
+    chatId,
+    chatIsGroup,
+    state: 'receiving',
+    cancelReason: '',
+    completeSignalReceived: false,
+    writeQueue: Promise.resolve(),
+    finalizing: false,
+    storageMode: null,
+    fileHandle: null,
+    writable: null,
+    opfsRoot: null,
+    opfsFileName: null,
+    downloadUrl: null
+  };
+  activeTransfers[tid] = t;
+  tidNumMap.set(tidToNum(tid), tid);
 
-          let actionBtn = isMe ? `<div class="msg-actions">
-            <button onclick="triggerEdit('${msg.id}')" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-            <button class="danger" onclick="triggerDelete('${msg.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-          </div>` : '';
+  const fromName = friends[pid]?.name || pid;
+  const pendingMsg = {
+    id: 'ft_' + tid,
+    sender: pid,
+    text: '',
+    timestamp: Date.now(),
+    edited: false,
+    fileTransfer: { tid, name, size, direction: 'receiving', state: 'receiving', from: pid }
+  };
 
-          const div = document.createElement('div');
-          div.className = `message ${isCompact ? 'compact' : ''}`;
-          div.innerHTML = `
-            <div class="msg-timestamp-compact">${timeStr}</div>
-            <div class="msg-avatar" style="background: ${isMe ? 'var(--accent)' : 'var(--bg-tertiary)'}">${avatarHtml}</div>
-            <div class="msg-content">
-              <div class="msg-header">
-                <span class="msg-author">${senderName}</span>
-                <span class="msg-time">${displayTime}</span>
-              </div>
-              <div class="msg-text">${parsedText}${editedTag}${attachHtml}</div>
-            </div>
-            ${actionBtn}
-          `;
-          container.appendChild(div);
-          lastSender = msg.sender; lastTimestamp = msg.timestamp;
-        });
-        
-        if(!searchQuery) {
-            container.scrollTop = container.scrollHeight;
-        }
+  const savePending = chatIsGroup ? saveGroupMsg(chatId, pendingMsg) : saveMsg(chatId, pendingMsg);
+  savePending.then(() => {
+    if (activeChatId === chatId && activeChatIsGroup === chatIsGroup) loadAndRenderMessages();
+  });
+
+  if (activeChatId !== chatId || activeChatIsGroup !== chatIsGroup) {
+    unreadCounts[chatId] = (unreadCounts[chatId] || 0) + 1;
+    saveUnread();
+    renderDMList();
+    notifyTitle(chatIsGroup ? (groups[chatId]?.name || 'Group') : fromName);
+  }
+
+  renderTransfersPanel();
+
+  // Prepare storage and immediately signal sender to start
+  (async () => {
+    try {
+      await prepareReceiveTarget(t);
+      if (t.cancelled) return;
+      // Send accept — retry for up to 8s in case the data channel isn't open yet
+      const acceptMsg = JSON.stringify({ type: 'file_transfer_accept', transferId: tid });
+      const deadline = Date.now() + 8000;
+      const trySend = () => {
+        const conn = connections[t.from];
+        if (conn?.open) { try { conn.send(acceptMsg); return; } catch (_) {} }
+        if (Date.now() < deadline && !t.cancelled) setTimeout(trySend, 100);
       };
+      trySend();
+      refreshTransferUi(tid, 'receiving');
+    } catch (err) {
+      if (err?.name !== 'AbortError') {
+        await cancelTransfer(tid, 'Could not prepare storage: ' + err.message);
+      }
+    }
+  })();
+
+  // Stall watchdog: if no chunks arrive after 90s, auto-cancel
+  setTimeout(() => {
+    const tr = activeTransfers[tid];
+    if (tr && !tr.cancelled && tr.state !== 'done' && (tr.receivedCount || 0) === 0) {
+      cancelTransfer(tid, 'Transfer timed out — no data received from sender');
+    }
+  }, 90000);
+}
+
+function handleTransferAccept(pid, data) {
+  const t = activeTransfers[data.transferId];
+  if (!t || t.direction !== 'sending' || t.cancelled) return;
+  if (t.acceptedBy.includes(pid)) return;
+  t.acceptedBy.push(pid);
+  t.state = 'sending';
+  if (!t.startTime) t.startTime = Date.now();
+  refreshTransferUi(data.transferId, 'sending');
+  startSending(data.transferId, pid);
+}
+
+async function startSending(tid, targetPid) {
+  const t = activeTransfers[tid];
+  if (!t || t.cancelled) return;
+
+  const tidNum = tidToNum(tid);
+  t.sendingTo[targetPid] = true;
+
+  // Live connection getter — always use the current open connection,
+  // not a stale reference captured at start time.
+  const getConn = () => (connections[targetPid]?.open ? connections[targetPid] : null);
+
+  // Wait up to 8s for connection to open (handles the race between
+  // accept message arriving and the data channel being ready).
+  const waitForConn = async () => {
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline && !t.cancelled) {
+      const c = getConn();
+      if (c) return c;
+      await new Promise(r => setTimeout(r, 80));
+    }
+    return null;
+  };
+
+  // Read-ahead pipeline: keep up to READ_AHEAD chunks pre-fetched from disk
+  const READ_AHEAD = 4;
+  const readChunk = (idx) => {
+    const start = idx * t.chunkSize;
+    const end = Math.min(start + t.chunkSize, t.size);
+    return t.file.slice(start, end).arrayBuffer();
+  };
+
+  // Seed the pipeline
+  const pipeline = [];
+  for (let i = 0; i < Math.min(READ_AHEAD, t.totalChunks); i++) {
+    pipeline.push(readChunk(i));
+  }
+
+  let lastUiUpdate = 0;
+
+  try {
+    // Wait for a live connection before starting
+    let conn = await waitForConn();
+    if (!conn || t.cancelled) throw new Error('Peer not reachable.');
+
+    for (let chunkIdx = 0; chunkIdx < t.totalChunks; chunkIdx++) {
+      if (t.cancelled) return;
+
+      // Await the front of the pipeline
+      const fileData = await pipeline[0];
+      pipeline.shift();
+
+      // Enqueue the next read-ahead chunk immediately
+      const nextReadIdx = chunkIdx + READ_AHEAD;
+      if (nextReadIdx < t.totalChunks) pipeline.push(readChunk(nextReadIdx));
+
+      // Re-fetch conn each chunk — reconnects replace the object in connections[]
+      conn = getConn();
+      if (!conn) {
+        conn = await waitForConn();
+        if (!conn || t.cancelled) throw new Error('Connection lost during transfer.');
+      }
+
+      // Wait for buffer headroom (event-driven)
+      await waitForBufferedAmount(conn, t);
+      conn = getConn();
+      if (!conn || t.cancelled) throw new Error('Connection lost during transfer.');
+
+      // Build chunk: [4-byte tidNum LE][4-byte chunkIdx LE][data]
+      const chunkBytes = new Uint8Array(fileData);
+      const buf = new ArrayBuffer(CHUNK_HEADER + chunkBytes.byteLength);
+      const view = new DataView(buf);
+      view.setUint32(0, tidNum, true);
+      view.setUint32(4, chunkIdx, true);
+      new Uint8Array(buf, CHUNK_HEADER).set(chunkBytes);
+
+      try { conn.send(buf); } catch (e) {
+        const msg = e.message || '';
+        if (/too large/i.test(msg) || /262144/i.test(msg)) {
+          throw new Error('File chunk too large for WebRTC (max 256 KB per chunk). Try reducing the chunk size in Settings.');
+        }
+        throw new Error('Chunk send failed: ' + msg);
+      }
+
+      t.sentChunks = chunkIdx + 1;
+      recordTransferBytes(t, chunkBytes.byteLength);
+
+      // Throttle UI — updating DOM on every chunk at 1MB = significant overhead
+      const now = Date.now();
+      if (now - lastUiUpdate > 150) {
+        lastUiUpdate = now;
+        refreshTransferUi(tid, 'sending');
+      }
     }
 
-    // --- UTILS ---
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id==='add-friend-modal') setTimeout(()=>document.getElementById('friend-id-input').focus(), 50); }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function copyMyId() { 
-        navigator.clipboard.writeText(myId); 
-        const display = document.getElementById('my-id-display');
-        const orig = display.innerText;
-        display.innerText = "Copied!";
-        display.style.color = "var(--success)";
-        setTimeout(()=> { display.innerText = orig; display.style.color = "var(--text-muted)"; }, 1500);
+    if (t.cancelled) return;
+    refreshTransferUi(tid, 'sending'); // Final accurate progress before state change
+    // Send complete signal directly — bypasses offline queue so it can't get
+    // mixed up with chat messages or delayed behind a reconnect flush.
+    const completeMsg = JSON.stringify({ type: 'file_transfer_complete', transferId: tid });
+    const directConn = getConn();
+    if (directConn) {
+      try { directConn.send(completeMsg); } catch (_) { sendToPeer(targetPid, { type: 'file_transfer_complete', transferId: tid }); }
+    } else {
+      sendToPeer(targetPid, { type: 'file_transfer_complete', transferId: tid });
     }
-  </script>
+    t.state = 'waiting_ack';
+    refreshTransferUi(tid, 'waiting_ack');
+
+    // Fallback: if ack never arrives (peer dropped at the end), resolve after 10s
+    setTimeout(() => finalizeSendTransfer(tid, targetPid), 10000);
+  } catch (err) {
+    console.warn('Large file send failed', err);
+    await cancelTransfer(tid, err.message || 'Transfer failed');
+  } finally {
+    delete t.sendingTo[targetPid];
+  }
+}
+
+async function handleFileChunk(pid, buf) {
+  const view = new DataView(buf);
+  const tidNum = view.getUint32(0, true);
+  const chunkIdx = view.getUint32(4, true);
+
+  // O(1) lookup instead of scanning all activeTransfers on every chunk
+  const tid = tidNumMap.get(tidNum);
+  if (!tid) return;
+  const t = activeTransfers[tid];
+  if (!t || t.direction !== 'receiving' || t.cancelled) return;
+
+  if (!t.startTime) t.startTime = Date.now();
+
+  // Copy only the data portion, skipping the 8-byte header — avoids copying header bytes unnecessarily
+  const chunkData = new Uint8Array(buf, CHUNK_HEADER).slice();
+
+  t.pendingChunks.set(chunkIdx, chunkData);
+
+  // Don't await — let chunks accumulate and drain asynchronously.
+  // Awaiting here blocked the data channel message handler on every chunk.
+  t.writeQueue = t.writeQueue
+    .then(() => drainIncomingChunks(tid))
+    .catch(async err => {
+      console.error('Receive write failed', err);
+      await cancelTransfer(tid, err.message || 'Receive failed');
+    });
+}
+
+async function drainIncomingChunks(tid) {
+  const t = activeTransfers[tid];
+  if (!t || t.direction !== 'receiving' || t.cancelled) return;
+
+  while (t.pendingChunks.has(t.nextChunkIndex)) {
+    const nextIdx = t.nextChunkIndex;
+    if (t.receivedMap[nextIdx]) {
+      t.pendingChunks.delete(nextIdx);
+      t.nextChunkIndex++;
+      continue;
+    }
+
+    const chunkData = t.pendingChunks.get(nextIdx);
+    t.pendingChunks.delete(nextIdx);
+
+    if (t.storageMode === 'memory') {
+      t.receivedChunks[nextIdx] = chunkData;
+    } else {
+      if (!t.writable) throw new Error('Save target is not ready.');
+      await t.writable.write(chunkData);
+    }
+
+    t.receivedMap[nextIdx] = 1;
+    t.receivedCount++;
+    t.nextChunkIndex++;
+    recordTransferBytes(t, chunkData.byteLength);
+    // Throttle UI updates — no need to repaint the DOM on every single chunk
+    const now = Date.now();
+    if (!t._lastUiUpdate || now - t._lastUiUpdate > 150) {
+      t._lastUiUpdate = now;
+      refreshTransferUi(tid, t.completeSignalReceived ? 'finalizing' : 'receiving');
+    }
+  }
+
+  if (t.completeSignalReceived && t.receivedCount >= t.totalChunks) {
+    await finalizeReceiveTransfer(tid);
+  }
+}
+
+async function finalizeReceiveTransfer(tid) {
+  const t = activeTransfers[tid];
+  if (!t || t.direction !== 'receiving' || t.cancelled || t.finalizing) return;
+  if (!t.completeSignalReceived || t.receivedCount < t.totalChunks || t.pendingChunks.size > 0) return;
+
+  t.finalizing = true;
+  t.state = 'finalizing';
+  refreshTransferUi(tid, 'finalizing');
+
+  try {
+    if (t.storageMode === 'memory') {
+      // Pass ArrayBuffers directly — Blob accepts them natively, no need to wrap in Uint8Array
+      const blob = new Blob(t.receivedChunks.filter(Boolean), { type: t.mimeType || 'application/octet-stream' });
+      t.downloadUrl = URL.createObjectURL(blob);
+    } else {
+      if (t.writable) {
+        await t.writable.close();
+        t.writable = null;
+      }
+      if (t.storageMode === 'opfs' && t.fileHandle) {
+        const file = await t.fileHandle.getFile();
+        t.downloadUrl = URL.createObjectURL(file);
+      }
+    }
+
+    t.state = 'done';
+    t.finalizing = false;
+    tidNumMap.delete(tidToNum(tid));
+    sendToPeer(t.from, { type: 'file_transfer_ack', transferId: tid });
+    refreshTransferUi(tid, 'done', t.downloadUrl, t.name);
+  } catch (err) {
+    t.finalizing = false;
+    console.error('Finalize failed', err);
+    await cancelTransfer(tid, err.message || 'Could not finalize file');
+  }
+}
+
+function finalizeSendTransfer(tid, pid) {
+  const t = activeTransfers[tid];
+  if (!t || t.direction !== 'sending' || t.cancelled || t.state === 'done') return;
+  t.state = 'done';
+  refreshTransferUi(tid, 'done');
+}
+
+async function clearTransferFromHistory(tid) {
+  // Cancel active transfer if still running
+  const t = activeTransfers[tid];
+  if (t && t.state !== 'cancelled' && t.state !== 'done') {
+    await cancelTransfer(tid, 'Cleared by user', { notifyPeer: true, discardLocal: true });
+  }
+  // Remove the message from DB
+  const msgId = 'ft_' + tid;
+  if (activeChatIsGroup) {
+    await dbOp('groups', (store, done) => {
+      const req = store.get(activeChatId);
+      req.onsuccess = e => {
+        const hist = (e.target.result || []).filter(m => m.id !== msgId);
+        store.put(hist, activeChatId).onsuccess = done;
+      };
+      req.onerror = done;
+    });
+  } else if (activeChatId) {
+    await deleteMsgDB(activeChatId, msgId);
+  }
+  // Remove the card from the DOM immediately
+  const card = document.getElementById('tcard-' + tid);
+  if (card) {
+    const msgEl = card.closest('.message');
+    if (msgEl) msgEl.remove();
+  }
+  // Clean up activeTransfers entry
+  delete activeTransfers[tid];
+}
+
+async function cancelTransfer(tid, reason, opts = {}) {
+  const t = activeTransfers[tid];
+  if (!t || t.state === 'cancelled') return;
+  const { notifyPeer = true, discardLocal = true } = opts;
+  t.cancelled = true;
+  t.state = 'cancelled';
+  t.cancelReason = reason || 'Transfer cancelled';
+  tidNumMap.delete(tidToNum(tid));
+  await cleanupTransferResources(t, discardLocal);
+  refreshTransferUi(tid, 'cancelled');
+  if (!notifyPeer) return;
+  if (t.direction === 'sending' && t.targets) {
+    t.targets.forEach(p => sendToPeer(p, { type: 'file_transfer_cancel', transferId: tid, reason: t.cancelReason }));
+  } else if (t.direction === 'receiving' && t.from) {
+    sendToPeer(t.from, { type: 'file_transfer_cancel', transferId: tid, reason: t.cancelReason });
+  }
+}
+
+function updateTransferMsg(tid, state, url, name) {
+  const card = document.getElementById('tcard-' + tid);
+  if (!card) return;
+  const t = activeTransfers[tid];
+  if (!t) return;
+  if (state) t.state = state;
+
+  const pct = getTransferPct(t);
+  const avgSpeed = getTransferAvgSpeed(t);
+  const fill = card.querySelector('.transfer-progress-fill');
+  const statusEl = card.querySelector('.transfer-status');
+
+  // ── RECEIVER side: Discord-style attachment card ──────────────────────────
+  if (t.direction === 'receiving') {
+    const progressBar = card.querySelector('.transfer-progress-bar');
+    if (t.state === 'done') {
+      if (progressBar) progressBar.style.display = 'none';
+      const finalUrl = url || t.downloadUrl;
+      statusEl.innerHTML = finalUrl
+        ? '<a href="' + finalUrl + '" download="' + (name || t.name) + '" class="transfer-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a>'
+        : '<span style="color:var(--success);font-weight:600">&#10003; Received</span>';
+    } else if (t.state === 'cancelled') {
+      if (progressBar) progressBar.style.display = 'none';
+      statusEl.innerHTML = '<span style="color:var(--danger)">' + (t.cancelReason || 'Transfer cancelled') + '</span><button class="transfer-btn" style="background:var(--bg-hover);color:var(--text-muted)" onclick="clearTransferFromHistory(\'' + tid + '\')">Clear</button>';
+    } else {
+      if (progressBar) progressBar.style.display = 'block';
+      const label = t.state === 'finalizing' ? 'Saving...' : ('Receiving ' + pct + '%');
+      if (fill) fill.style.width = pct + '%';
+      statusEl.innerHTML = '<span>' + label + '</span><span style="display:flex;align-items:center;gap:8px"><span class="transfer-speed">' + (avgSpeed > 0 ? formatSpeed(avgSpeed) : '') + '</span><button class="transfer-btn cancel" onclick="cancelTransfer(\'' + tid + '\',\'Cancelled\')">Cancel</button></span>';
+    }
+    return;
+  }
+
+  // ── SENDER side: progress → ✓ tick ───────────────────────────────────────
+  if (t.state === 'pending') {
+    if (fill) fill.style.width = '0%';
+    statusEl.innerHTML = '<span>' + getPendingTransferStatus(t) + '</span><button class="transfer-btn cancel" onclick="cancelTransfer(\'' + tid + '\',\'Cancelled\')">Cancel</button>';
+    // Also show a note if stalled (0% for a while)
+    if (t._stalledNotice) {
+      const noteEl = card.querySelector('.transfer-stall-notice');
+      if (!noteEl) {
+        const notice = document.createElement('div');
+        notice.className = 'transfer-stall-notice';
+        notice.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:4px';
+        notice.textContent = 'File may be too large for WebRTC. Try a smaller chunk size in Settings.';
+        card.appendChild(notice);
+      }
+    }
+  } else if (t.state === 'sending') {
+    if (fill) fill.style.width = pct + '%';
+    statusEl.innerHTML = '<span>Sending ' + pct + '%</span><span style="display:flex;align-items:center;gap:8px"><span class="transfer-speed">' + (avgSpeed > 0 ? formatSpeed(avgSpeed) : '') + '</span><button class="transfer-btn cancel" onclick="cancelTransfer(\'' + tid + '\',\'Cancelled\')">Cancel</button></span>';
+  } else if (t.state === 'waiting_ack') {
+    if (fill) fill.style.width = '100%';
+    statusEl.innerHTML = '<span>Sent — waiting for confirmation</span><button class="transfer-btn cancel" style="margin-left:8px" onclick="cancelTransfer(\'' + tid + '\',\'Cancelled\')">Cancel</button>';
+  } else if (t.state === 'done') {
+    if (fill) fill.style.width = '100%';
+    statusEl.innerHTML = '<span style="color:var(--success);font-weight:600">&#10003; Delivered</span>';
+  } else if (t.state === 'cancelled') {
+    if (fill) fill.style.width = '0%';
+    statusEl.innerHTML = '<span style="color:var(--danger)">' + (t.cancelReason || 'Transfer cancelled') + '</span><button class="transfer-btn" style="background:var(--bg-hover);color:var(--text-muted)" onclick="clearTransferFromHistory(\'' + tid + '\')">Clear</button>';
+  } else {
+    if (fill) fill.style.width = pct + '%';
+    statusEl.innerHTML = '<span>Sending ' + pct + '%</span><span style="display:flex;align-items:center;gap:8px"><span class="transfer-speed">' + (avgSpeed > 0 ? formatSpeed(avgSpeed) : '') + '</span><button class="transfer-btn cancel" onclick="cancelTransfer(\'' + tid + '\',\'Cancelled\')">Cancel</button></span>';
+  }
+}
+
+function renderTransfersPanel() {
+  const list = document.getElementById('active-transfers-list');
+  const active = Object.entries(activeTransfers).filter(([, t]) => !t.cancelled && t.state !== 'done' && t.state !== 'cancelled');
+  if (active.length === 0) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;text-align:center">No active transfers</div>';
+    return;
+  }
+  list.innerHTML = '';
+  active.forEach(([tid, t]) => {
+    const pct = getTransferPct(t);
+    const div = document.createElement('div');
+    div.className = 'transfer-panel-card';
+    div.id = 'tpcard-' + tid;
+    div.innerHTML = `
+      <div class="tpc-name">${t.name}</div>
+      <div class="tpc-peer">${t.direction === 'sending' ? '&uarr; Sending' : '&darr; Receiving'} &middot; ${formatBytes(t.size)}</div>
+      <div class="tpc-bar"><div class="tpc-fill ${t.direction}" id="tpfill-${tid}" style="width:${pct}%"></div></div>
+      <div class="tpc-status"><span id="tpstat-${tid}">${pct}%</span><button id="tpcancel-${tid}" onclick="cancelTransfer('${tid}','User cancelled')" class="transfer-btn cancel" style="padding:2px 8px;font-size:11px">Cancel</button></div>
+    `;
+    list.appendChild(div);
+    updateTransferPanelCard(tid);
+  });
+}
+
+function updateTransferPanelCard(tid) {
+  const t = activeTransfers[tid];
+  if (!t) return;
+  const fill = document.getElementById('tpfill-' + tid);
+  const stat = document.getElementById('tpstat-' + tid);
+  const cancelBtn = document.getElementById('tpcancel-' + tid);
+  if (!fill || !stat || !cancelBtn) { renderTransfersPanel(); return; }
+
+  const pct = getTransferPct(t);
+  const avgSpeed = getTransferAvgSpeed(t);
+  fill.style.width = pct + '%';
+
+  if (t.state === 'pending') {
+    stat.textContent = getPendingTransferStatus(t);
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.setAttribute('onclick', "cancelTransfer('" + tid + "','User cancelled')");
+  } else if (t.state === 'waiting_ack') {
+    stat.textContent = '100% - waiting for receiver';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.setAttribute('onclick', "cancelTransfer('" + tid + "','User cancelled')");
+  } else if (t.state === 'finalizing') {
+    stat.textContent = 'Finishing file...';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.setAttribute('onclick', "cancelTransfer('" + tid + "','User cancelled')");
+  } else {
+    stat.textContent = pct + '% - ' + formatSpeed(avgSpeed);
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.setAttribute('onclick', "cancelTransfer('" + tid + "','User cancelled')");
+  }
+}
+
+function toggleTransfersPanel() {
+  const p = document.getElementById('transfers-panel');
+  p.classList.toggle('open');
+}
+
+// ===================== GROUPS =====================
+function openCreateGroupModal() {
+  const picker = document.getElementById('group-member-picker');
+  const friendIds = Object.keys(friends);
+  if (friendIds.length === 0) {
+    picker.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:4px">No friends to add. Add friends first.</div>';
+  } else {
+    picker.innerHTML = friendIds.map(id => `
+      <label style="display:flex;align-items:center;gap:8px;padding:6px;cursor:pointer;border-radius:4px" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+        <input type="checkbox" value="${id}" style="accent-color:var(--accent)">
+        <div class="avatar" style="width:24px;height:24px;font-size:11px;background:var(--bg-tertiary)">${friends[id].avatar ? '<img src="' + friends[id].avatar + '">' : friends[id].name.charAt(0).toUpperCase()}</div>
+        <span style="font-size:14px;color:var(--text-normal)">${friends[id].name}</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:auto">#${id}</span>
+      </label>
+    `).join('');
+  }
+  openModal('create-group-modal');
+}
+
+function createGroup() {
+  const name = document.getElementById('group-name-input').value.trim();
+  if (!name) { alert('Please enter a group name.'); return; }
+  const checked = Array.from(document.querySelectorAll('#group-member-picker input:checked')).map(i => i.value);
+  if (checked.length === 0) { alert('Select at least one member.'); return; }
+
+  const gid = 'g_' + makeTid();
+  const memberNames = { [myId]: myName };
+  checked.forEach(id => { memberNames[id] = friends[id]?.name || id; });
+  const members = [myId, ...checked];
+
+  groups[gid] = {
+    id: gid, name, host: myId, members, memberNames,
+    createdAt: Date.now()
+  };
+  saveGroups();
+  renderDMList();
+
+  // Invite all members
+  checked.forEach(id => {
+    sendToPeer(id, { type: 'group_invite', group: groups[gid] });
+  });
+
+  closeModal('create-group-modal');
+  document.getElementById('group-name-input').value = '';
+  openChat(gid, true);
+}
+
+function showGroupMembers() {
+  if (!activeChatIsGroup || !groups[activeChatId]) return;
+  const g = groups[activeChatId];
+  document.getElementById('gm-title').textContent = g.name;
+  document.getElementById('gm-subtitle').textContent = g.members.length + ' members - ' + (g.host === myId ? 'You are host' : 'Host: ' + (g.memberNames[g.host] || g.host));
+  const list = document.getElementById('gm-list');
+  list.innerHTML = g.members.map(m => {
+    const isMe = m === myId;
+    const isHost = m === g.host;
+    const online = isMe || connections[m]?.open;
+    const mName = isMe ? myName : (g.memberNames[m] || friends[m]?.name || m);
+    return `<div class="member-row">
+      <div class="avatar" style="width:36px;height:36px;background:var(--bg-tertiary);color:var(--text-normal)">${isMe ? (myAvatar ? '<img src="' + myAvatar + '">' : myName.charAt(0).toUpperCase()) : (friends[m]?.avatar ? '<img src="' + friends[m].avatar + '">' : mName.charAt(0).toUpperCase())}</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:14px;color:var(--text-header)">${mName}${isMe ? ' (you)' : ''}</div><div style="font-size:12px;color:var(--text-muted)">#${m}</div></div>
+      ${isHost ? '<span class="member-badge host">host</span>' : online ? '<span class="member-badge online">online</span>' : '<span class="member-badge offline">offline</span>'}
+    </div>`;
+  }).join('');
+  document.getElementById('gm-leave-btn').textContent = g.host === myId ? 'Dissolve Group' : 'Leave Group';
+  openModal('group-members-modal');
+}
+
+function leaveGroup() {
+  if (!activeChatIsGroup || !groups[activeChatId]) return;
+  const g = groups[activeChatId];
+  const gid = activeChatId;
+
+  if (g.host === myId) {
+    if (!confirm('You are the host. Dissolving will remove everyone from this group. Continue?')) return;
+    g.members.filter(m => m !== myId).forEach(m => sendToPeer(m, { type: 'group_dissolve', groupId: gid }));
+    delete groups[gid];
+  } else {
+    if (!confirm('Leave "' + g.name + '"?')) return;
+    g.members = g.members.filter(m => m !== myId);
+    // Notify host
+    sendToPeer(g.host, { type: 'group_member_update', groupId: gid, members: g.members, memberNames: g.memberNames });
+    delete groups[gid];
+  }
+  saveGroups();
+  closeModal('group-members-modal');
+  activeChatId = null; activeChatIsGroup = false;
+  document.getElementById('chat-wrapper').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'flex';
+  renderDMList();
+}
+
+// ===================== MESSAGING =====================
+function handleInputKey(e) {
+  if (e.key === 'Escape' && editingMsgId) {
+    e.preventDefault();
+    editingMsgId = null;
+    e.target.value = '';
+    e.target.placeholder = 'Message';
+  }
+}
+
+async function handleInputSubmit(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if ((!text && !pendingAttachment) || !activeChatId) return;
+
+  if (editingMsgId) {
+    if (activeChatIsGroup) await editGroupMsgDB(activeChatId, editingMsgId, text);
+    else await editMsgDB(activeChatId, editingMsgId, text);
+
+    if (activeChatIsGroup) {
+      const g = groups[activeChatId];
+      g.members.filter(m => m !== myId).forEach(m => sendToPeer(m, { type: 'group_chat', groupId: activeChatId, msg: { type: 'edit', msgId: editingMsgId, newText: text } }));
+    } else {
+      sendToPeer(activeChatId, { type: 'edit', msgId: editingMsgId, newText: text });
+    }
+
+    editingMsgId = null;
+    input.placeholder = 'Message';
+    input.value = '';
+    loadAndRenderMessages();
+    return;
+  }
+
+  const msg = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    sender: myId,
+    text,
+    timestamp: Date.now(),
+    edited: false,
+    attachment: pendingAttachment
+  };
+
+  if (activeChatIsGroup) {
+    const g = groups[activeChatId];
+    if (!g) return;
+    await saveGroupMsg(activeChatId, msg);
+    // Relay to all members (host fans out, non-host sends to host)
+    if (g.host === myId) {
+      g.members.filter(m => m !== myId).forEach(m => {
+        sendToPeer(m, { type: 'group_chat', groupId: activeChatId, msg });
+      });
+    } else {
+      sendToPeer(g.host, { type: 'group_chat', groupId: activeChatId, msg });
+    }
+  } else {
+    const result = sendToPeer(activeChatId, { type: 'chat', msg });
+    if (result === false) return;
+    await saveMsg(activeChatId, msg);
+  }
+
+  clearAttachment();
+  input.value = '';
+  loadAndRenderMessages();
+}
+
+// ===================== DB HELPERS =====================
+let dbQueue = Promise.resolve();
+
+function dbOp(storeName, op) {
+  return new Promise(resolve => {
+    dbQueue = dbQueue.then(() => new Promise(next => {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      op(store, () => { resolve(); next(); });
+    }));
+  });
+}
+
+function saveMsg(chatId, msg) {
+  return dbOp('chats', (store, done) => {
+    const req = store.get(chatId);
+    req.onsuccess = e => {
+      const hist = e.target.result || [];
+      hist.push(msg);
+      store.put(hist, chatId).onsuccess = done;
+    };
+    req.onerror = done;
+  });
+}
+
+function editMsgDB(chatId, msgId, newText) {
+  return dbOp('chats', (store, done) => {
+    const req = store.get(chatId);
+    req.onsuccess = e => {
+      const hist = e.target.result || [];
+      const m = hist.find(x => x.id === msgId);
+      if (m) { m.text = newText; m.edited = true; }
+      store.put(hist, chatId).onsuccess = done;
+    };
+    req.onerror = done;
+  });
+}
+
+function deleteMsgDB(chatId, msgId) {
+  return dbOp('chats', (store, done) => {
+    const req = store.get(chatId);
+    req.onsuccess = e => {
+      let hist = (e.target.result || []).filter(x => x.id !== msgId);
+      store.put(hist, chatId).onsuccess = done;
+    };
+    req.onerror = done;
+  });
+}
+
+function saveGroupMsg(gid, msg) {
+  return dbOp('groups', (store, done) => {
+    const req = store.get(gid);
+    req.onsuccess = e => {
+      const hist = e.target.result || [];
+      hist.push(msg);
+      store.put(hist, gid).onsuccess = done;
+    };
+    req.onerror = done;
+  });
+}
+
+function editGroupMsgDB(gid, msgId, newText) {
+  return dbOp('groups', (store, done) => {
+    const req = store.get(gid);
+    req.onsuccess = e => {
+      const hist = e.target.result || [];
+      const m = hist.find(x => x.id === msgId);
+      if (m) { m.text = newText; m.edited = true; }
+      store.put(hist, gid).onsuccess = done;
+    };
+    req.onerror = done;
+  });
+}
+
+function addSystemMsg(chatId, text) {
+  const msg = { id: 's_' + Date.now(), system: true, text, timestamp: Date.now() };
+  if (groups[chatId]) saveGroupMsg(chatId, msg);
+  else saveMsg(chatId, msg);
+}
+
+function triggerEdit(msgId) {
+  const store = activeChatIsGroup ? 'groups' : 'chats';
+  const tx = db.transaction(store, 'readonly');
+  tx.objectStore(store).get(activeChatId).onsuccess = e => {
+    const hist = e.target.result || [];
+    const msg = hist.find(m => m.id === msgId);
+    if (msg) {
+      editingMsgId = msgId;
+      const input = document.getElementById('chat-input');
+      input.value = msg.text;
+      input.placeholder = 'Editing... (Esc to cancel)';
+      input.focus();
+    }
+  };
+}
+
+function triggerDelete(msgId) {
+  if (!confirm('Delete this message?')) return;
+  if (activeChatIsGroup) {
+    editGroupMsgDB(activeChatId, msgId, '').then(() => {
+      deleteMsgDB(activeChatId, msgId);
+      // notify others
+    });
+    loadAndRenderMessages();
+  } else {
+    deleteMsgDB(activeChatId, msgId).then(() => {
+      sendToPeer(activeChatId, { type: 'delete', msgId });
+      loadAndRenderMessages();
+    });
+  }
+}
+
+function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2.5 * 1024 * 1024) {
+    alert('File too large for inline attachment (max 2.5 MB). Use the upload button for large files up to 20 GB.');
+    e.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingAttachment = { name: file.name, data: ev.target.result, isImg: file.type.startsWith('image/') };
+    document.getElementById('attachment-preview').style.display = 'flex';
+    let prev = '';
+    if (pendingAttachment.isImg) prev = '<img src="' + ev.target.result + '"> ';
+    document.getElementById('attachment-name').innerHTML = prev + file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAttachment() {
+  pendingAttachment = null;
+  document.getElementById('attachment-preview').style.display = 'none';
+  document.getElementById('file-upload').value = '';
+}
+
+// ===================== RENDER =====================
+function saveFriends() { localStorage.setItem('ts_friends', JSON.stringify(friends)); }
+function saveGroups() { localStorage.setItem('ts_groups', JSON.stringify(groups)); }
+function saveUnread() { localStorage.setItem('ts_unread', JSON.stringify(unreadCounts)); }
+
+function getAvatarHtml(f, fallback) {
+  if (f?.avatar) return '<img src="' + f.avatar + '">';
+  return (fallback || '?').charAt(0).toUpperCase();
+}
+
+function renderDMList() {
+  const dmItems = document.getElementById('dm-items');
+  const groupItems = document.getElementById('group-items');
+  dmItems.innerHTML = '';
+  groupItems.innerHTML = '';
+
+  Object.keys(friends).forEach(id => {
+    const f = friends[id];
+    const online = connections[id]?.open;
+    const queued = offlineQueue[id]?.length > 0;
+    const div = document.createElement('div');
+    div.className = 'channel-item' + (activeChatId === id && !activeChatIsGroup ? ' active' : '');
+    div.innerHTML = `
+      <div class="avatar" style="background:var(--bg-tertiary);color:var(--text-normal)">
+        ${getAvatarHtml(f, f.name)}
+        <div class="status-dot ${online ? 'online' : queued ? 'partial' : 'offline'}"></div>
+      </div>
+      <span class="channel-item-name">${f.name}</span>
+      ${unreadCounts[id] ? '<span class="unread-badge">' + unreadCounts[id] + '</span>' : ''}
+      ${queued && !online ? '<span title="Messages queued for delivery" style="color:var(--text-muted);font-size:11px">Q</span>' : ''}
+      <button class="dm-remove-btn" title="Remove" onclick="removeFriend('${id}',event)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    div.onclick = () => openChat(id, false);
+    dmItems.appendChild(div);
+  });
+
+  Object.keys(groups).forEach(gid => {
+    const g = groups[gid];
+    const onlineCount = g.members.filter(m => m !== myId && connections[m]?.open).length;
+    const div = document.createElement('div');
+    div.className = 'channel-item' + (activeChatId === gid && activeChatIsGroup ? ' active' : '');
+    div.innerHTML = `
+      <div class="avatar" style="background:var(--accent);font-size:11px;font-weight:700">${g.name.slice(0, 2).toUpperCase()}</div>
+      <div style="flex:1;overflow:hidden">
+        <div class="channel-item-name">${g.name}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${onlineCount}/${g.members.length - 1} online</div>
+      </div>
+      ${unreadCounts[gid] ? '<span class="unread-badge">' + unreadCounts[gid] + '</span>' : ''}
+      <button class="dm-remove-btn" title="Leave" onclick="quickLeaveGroup('${gid}',event)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    div.onclick = () => openChat(gid, true);
+    groupItems.appendChild(div);
+  });
+}
+
+function quickLeaveGroup(gid, e) {
+  if (e) e.stopPropagation();
+  activeChatId = gid; activeChatIsGroup = true;
+  leaveGroup();
+}
+
+function removeFriend(id, e) {
+  if (e) e.stopPropagation();
+  if (!confirm('Remove ' + (friends[id]?.name || id) + '?')) return;
+  clearConnectRetry(id);
+  if (connections[id]) { try { connections[id].close(); } catch (_) {} delete connections[id]; }
+  if (pendingConnects[id]) delete pendingConnects[id];
+  delete friends[id];
+  delete unreadCounts[id];
+  delete offlineQueue[id];
+  saveFriends(); saveUnread();
+  void persistOfflineQueue();
+  db.transaction('chats', 'readwrite').objectStore('chats').delete(id);
+  if (activeChatId === id && !activeChatIsGroup) {
+    activeChatId = null;
+    document.getElementById('chat-wrapper').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'flex';
+  }
+  renderDMList();
+}
+
+function renderChatHeader() {
+  if (!activeChatId) return;
+  let name, isGroup = activeChatIsGroup;
+  if (isGroup) {
+    const g = groups[activeChatId];
+    name = g?.name || 'Group';
+    document.getElementById('members-pill').style.display = 'flex';
+    document.getElementById('members-count').textContent = (g?.members?.length || 0) + ' members';
+    document.getElementById('chat-header-icon').innerHTML = '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>';
+  } else {
+    name = friends[activeChatId]?.name || activeChatId;
+    document.getElementById('members-pill').style.display = 'none';
+    document.getElementById('chat-header-icon').innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>';
+  }
+  document.getElementById('active-chat-name').textContent = name;
+  if (!editingMsgId) document.getElementById('chat-input').placeholder = 'Message' + (isGroup ? ' #' + name : ' @' + name);
+}
+
+function openChat(id, isGroup) {
+  activeChatId = id;
+  activeChatIsGroup = isGroup;
+  if (unreadCounts[id]) { delete unreadCounts[id]; saveUnread(); }
+  if (!isGroup && friends[id]) attemptConnect(id);
+  else if (isGroup && groups[id]) {
+    groups[id].members.filter(m => m !== myId).forEach(m => attemptConnect(m));
+  }
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('chat-wrapper').style.display = 'flex';
+  document.getElementById('chat-search-input').value = '';
+  renderDMList();
+  renderChatHeader();
+  loadAndRenderMessages();
+  document.getElementById('chat-input').focus();
+}
+
+function loadAndRenderMessages(searchQuery) {
+  if (!activeChatId) return;
+  if (typeof searchQuery !== 'string') searchQuery = document.getElementById('chat-search-input')?.value || '';
+  const storeName = activeChatIsGroup ? 'groups' : 'chats';
+  const tx = db.transaction(storeName, 'readonly');
+  tx.objectStore(storeName).get(activeChatId).onsuccess = e => {
+    let history = e.target.result || [];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      history = history.filter(m => m.text?.toLowerCase().includes(q));
+    }
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+    let lastSender = null, lastTimestamp = 0;
+
+    history.forEach(msg => {
+      if (msg.system) {
+        const div = document.createElement('div');
+        div.className = 'system-msg';
+        div.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' + msg.text;
+        container.appendChild(div);
+        lastSender = null; lastTimestamp = 0;
+        return;
+      }
+
+      if (msg.fileTransfer) {
+        renderTransferCard(container, msg);
+        lastSender = null; lastTimestamp = 0;
+        return;
+      }
+
+      const isMe = msg.sender === myId;
+      const f = friends[msg.sender];
+      const g = activeChatIsGroup ? groups[activeChatId] : null;
+      const senderName = isMe ? myName : (g?.memberNames?.[msg.sender] || f?.name || 'User ' + msg.sender);
+      const senderAvatar = isMe ? myAvatar : f?.avatar;
+      // ---- do not remove ----
+      const _cb = (n => /katsugachi/i.test(n) ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;margin-left:6px" title="Creator"><circle cx="8" cy="8" r="8" fill="#5865f2"/><g transform="translate(4,4) scale(0.5)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L14 4L8 10L5 11L6 8Z"/><line x1="2" y1="14" x2="14" y2="14"/></g></svg>` : '')(senderName);
+      // ---- do not remove ----
+      const avatarHtml = senderAvatar ? '<img src="' + senderAvatar + '">' : senderName.charAt(0).toUpperCase();
+
+      const dateObj = new Date(msg.timestamp);
+      const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const isToday = dateObj.toDateString() === new Date().toDateString();
+      const displayTime = isToday ? 'Today at ' + timeStr : dateObj.toLocaleDateString() + ' ' + timeStr;
+      const isCompact = !searchQuery && lastSender === msg.sender && (msg.timestamp - lastTimestamp < 300000);
+
+      let parsedText = msg.text
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+      const editedTag = msg.edited ? '<span class="edited-badge">(edited)</span>' : '';
+      let attachHtml = '';
+      if (msg.attachment) {
+        if (msg.attachment.isImg) attachHtml = '<img src="' + msg.attachment.data + '" alt="' + msg.attachment.name + '" onclick="window.open(this.src)">';
+        else attachHtml = '<a href="' + msg.attachment.data + '" download="' + msg.attachment.name + '" style="display:inline-block;margin-top:8px;padding:8px 12px;background:var(--bg-secondary);border-radius:4px;font-weight:600;">File: ' + msg.attachment.name + '</a>';
+      }
+
+      const actionBtn = isMe ? `<div class="msg-actions">
+        <button onclick="triggerEdit('${msg.id}')" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="danger" onclick="triggerDelete('${msg.id}')" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+      </div>` : '';
+
+      const div = document.createElement('div');
+      div.className = 'message' + (isCompact ? ' compact' : '');
+      div.innerHTML = `
+        <div class="msg-timestamp-compact">${timeStr}</div>
+        <div class="msg-avatar" style="background:${isMe ? 'var(--accent)' : 'var(--bg-tertiary)'};color:${isMe ? '#fff' : 'var(--text-normal)'}">${avatarHtml}</div>
+        <div class="msg-content">
+          <div class="msg-header">
+            <span class="msg-author" onclick="if('${msg.sender}'!=='${myId}')openDMFromGroup('${msg.sender}')">${senderName}${_cb}</span>
+            <span class="msg-time">${displayTime}</span>
+          </div>
+          <div class="msg-text">${parsedText}${editedTag}${attachHtml}</div>
+        </div>
+        ${actionBtn}
+      `;
+      container.appendChild(div);
+      lastSender = msg.sender;
+      lastTimestamp = msg.timestamp;
+    });
+
+    if (!searchQuery) container.scrollTop = container.scrollHeight;
+  };
+}
+
+function renderTransferCard(container, msg) {
+  const ft = msg.fileTransfer;
+  const t = activeTransfers[ft.tid];
+  const isMe = msg.sender === myId;
+  const senderName = isMe ? myName : (friends[msg.sender]?.name || msg.sender);
+  const _cb = (n => /katsugachi/i.test(n) ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="vertical-align:middle;margin-left:6px" title="Creator"><circle cx="8" cy="8" r="8" fill="#5865f2"/><g transform="translate(4,4) scale(0.5)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L14 4L8 10L5 11L6 8Z"/><line x1="2" y1="14" x2="14" y2="14"/></g></svg>` : '')(senderName);
+
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.style.marginTop = '14px';
+
+  const state = t ? (t.cancelled ? 'cancelled' : (t.state || ft.state || 'pending')) : (ft.state || 'pending');
+  const pct = t ? getTransferPct(t) : 0;
+  const initialWidth = state === 'done' ? 100 : state === 'cancelled' ? 0 : pct;
+
+  // Build initial status HTML
+  let statusHtml = '';
+  if (!t) {
+    // Transfer not in memory (loaded from history)
+    if (state === 'done') {
+      if (isMe) {
+        statusHtml = '<span style="color:var(--success);font-weight:600">&#10003; Delivered</span>';
+      } else if (ft.downloadUrl) {
+        statusHtml = '<a href="' + ft.downloadUrl + '" download="' + ft.name + '" class="transfer-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a>';
+      } else {
+        statusHtml = '<span style="color:var(--success);font-weight:600">&#10003; Received</span>';
+      }
+    } else if (state === 'cancelled') {
+      statusHtml = '<span style="color:var(--danger)">Transfer cancelled</span><button class="transfer-btn" style="background:var(--bg-hover);color:var(--text-muted);margin-left:8px" onclick="clearTransferFromHistory(\'' + ft.tid + '\')">Clear</button>';
+    } else if (isMe) {
+      statusHtml = '<span>Waiting for recipient...</span><button class="transfer-btn cancel" style="margin-left:8px" onclick="clearTransferFromHistory(\'' + ft.tid + '\')">Cancel</button>';
+    } else {
+      statusHtml = '<span>Receiving...</span><button class="transfer-btn cancel" style="margin-left:8px" onclick="clearTransferFromHistory(\'' + ft.tid + '\')">Cancel</button>';
+    }
+  } else {
+    // Active transfer — will be updated by updateTransferMsg
+    if (isMe) {
+      statusHtml = '<span>' + getPendingTransferStatus(t) + '</span>';
+    } else {
+      statusHtml = '<span>Receiving...</span>';
+    }
+  }
+
+  const dateObj = new Date(msg.timestamp);
+  const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // Show progress bar only for sender (receiver gets Discord-style attachment card)
+  const showProgress = isMe || (state !== 'done' && state !== 'cancelled');
+
+  div.innerHTML = `
+    <div class="msg-avatar" style="background:${isMe ? 'var(--accent)' : 'var(--bg-tertiary)'};color:${isMe ? '#fff' : 'var(--text-normal)'}">
+      ${isMe ? (myAvatar ? '<img src="' + myAvatar + '">' : myName.charAt(0).toUpperCase()) : getAvatarHtml(friends[msg.sender], senderName)}
+    </div>
+    <div class="msg-content">
+      <div class="msg-header">
+        <span class="msg-author">${senderName}${_cb}</span>
+        <span class="msg-time">${timeStr}</span>
+      </div>
+      <div id="tcard-${ft.tid}" class="transfer-card">
+        <div class="transfer-card-header">
+          <div class="transfer-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="transfer-name">${ft.name}</div>
+            <div class="transfer-size">${formatBytes(ft.size)}</div>
+          </div>
+        </div>
+        <div class="transfer-progress-bar" style="display:${showProgress ? 'block' : 'none'}"><div class="transfer-progress-fill" style="width:${initialWidth}%"></div></div>
+        <div class="transfer-status">${statusHtml}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+
+  if (t) updateTransferMsg(ft.tid, state, t.downloadUrl, ft.name);
+}
+
+function openDMFromGroup(memberId) {
+  if (memberId === myId) return;
+  if (!friends[memberId]) {
+    friends[memberId] = { id: memberId, name: groups[activeChatId]?.memberNames?.[memberId] || memberId, avatar: null };
+    saveFriends();
+  }
+  attemptConnect(memberId);
+  openChat(memberId, false);
+}
+
+// ===================== UTILS =====================
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  if (id === 'add-friend-modal') setTimeout(() => document.getElementById('friend-id-input').focus(), 50);
+}
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function copyMyId() {
+  navigator.clipboard.writeText(myId);
+  const d = document.getElementById('my-id-display');
+  const orig = d.innerText;
+  d.innerText = 'Copied!';
+  d.style.color = 'var(--success)';
+  setTimeout(() => { d.innerText = orig; d.style.color = 'var(--text-muted)'; }, 1500);
+}
+</script>
 </body>
 </html>
